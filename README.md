@@ -1,1 +1,5 @@
-# PC-Estoque
+# pc-estoque
+
+## Descrição
+
+## Participantes (originais)
