@@ -1,4 +1,16 @@
 #Informações Base
+### 📊 O que o estoque representa no marketplace
+
+O estoque, dentro do ecossistema de um marketplace, vai muito além de números — ele representa diretamente a **capacidade de atendimento**, ou seja, quantos pedidos podem ser honrados em determinado momento.  
+
+Manter um **nível equilibrado de estoque** é fundamental:  
+- **Excesso de produtos** pode gerar custos operacionais e logísticos desnecessários.  
+- **Estoques reduzidos**, por outro lado, podem resultar em perda de vendas e queda no faturamento.  
+
+Além disso, um item **frequentemente esgotado** prejudica a reputação do seller e pode abalar a **confiança do consumidor**.  
+
+Por fim, o estoque é, na prática, **o próprio catálogo ativo de produtos**. Sem ele, não há o que exibir, anunciar ou vender — logo, sua boa gestão impacta diretamente na visibilidade e na competitividade da operação.
+
 
 # 📦 Gestão de Estoque na Concorrência: Estratégias e Tecnologias Aplicadas
 
