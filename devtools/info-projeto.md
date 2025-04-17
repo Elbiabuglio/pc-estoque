@@ -1,4 +1,4 @@
-#Informações Base
+# Informações Base
 
 ## 📦 Estoque no Marketplace
 
