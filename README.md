@@ -1,20 +1,52 @@
-# pc-estoque
+📦 PC-Estoque
 
-## Descrição
+📄 Descrição
+O PC-Estoque é um sistema de gerenciamento de estoque desenvolvido para oferecer uma solução simples, prática e eficiente no controle de produtos disponíveis em marketplaces. A aplicação permite realizar o cadastro de produtos, controlar entradas e saídas de estoque, atualizar quantidades disponíveis e visualizar informações em tempo real — garantindo maior organização, segurança e agilidade nas operações comerciais.
 
-O PC-Estoque é um sistema de gerenciamento de estoque desenvolvido com o objetivo de oferecer uma solução simples, prática e eficiente para o controle de produtos disponíveis em marketplaces. O sistema permite o cadastro de produtos, atualização de quantidades disponíveis, controle de entradas e saídas de estoque, e exibição precisa das informações em tempo real, garantindo maior organização e confiabilidade nas operações comerciais.
 
-## Funcionalidades principais
-
-- Cadastro e edição de produtos
-- Controle de estoque (entrada e saída)
-- Visualização de produtos disponíveis
-- Atualização dinâmica da quantidade em estoque
-- Interface amigável para uso interno
-
-## Participantes (originais)
-
+👥 Equipe de Desenvolvimento
 - Elbia Simone Buglio
+
 - Fabio Romero
+
 - Laura Gabriely
+
 - Victor Teixeira
+
+⚙️ Configuração do Ambiente Local
+Este projeto foi desenvolvido utilizando Python 3.12. Antes de iniciar, confirme se essa versão está instalada em sua máquina.
+
+📦 Clonando o Repositório
+
+git clone <URL-do-repositório>
+cd pc-estoque
+
+📑 Configuração no Linux 🐧
+Crie o ambiente virtual:
+make build-venv
+
+Ative o ambiente virtual:
+source ./venv/bin/activate
+
+Instale as dependências do projeto:
+make requirements-dev
+⚠️ A partir deste ponto, todos os comandos deverão ser executados dentro do ambiente virtual ativado.
+
+📑 Configuração no Windows 🪟
+Crie o ambiente virtual:
+python -m venv venv
+
+Ative o ambiente virtual:
+venv\Scripts\activate
+
+Instale as dependências do projeto:
+pip install -r requirements.txt
+
+📌 Observações
+Confirme a versão do Python instalada:
+python --version
+No Linux, este projeto utiliza make para automação de tarefas.
+No Windows, os comandos são executados manualmente.
+
+Certifique-se de ativar o ambiente virtual antes de executar qualquer comando relacionado ao projeto.
+
