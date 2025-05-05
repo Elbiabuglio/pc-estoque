@@ -105,4 +105,3 @@ uvicorn app.api_main:app --reload
 3. Submeta via **Pull Request**.
 4. Aguarde o **Code Review** pela equipe de desenvolvimento.
 5. Após aprovação, a alteração será integrada ao código principal.
-
