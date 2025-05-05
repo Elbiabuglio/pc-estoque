@@ -15,10 +15,14 @@ O PC-Estoque é um sistema de gerenciamento de estoque desenvolvido para oferece
 
 
 ## ⚙️ Configuração do Ambiente Local
-Este projeto foi desenvolvido utilizando Python 3.12. Antes de iniciar, confirme se essa versão está instalada em sua máquina.
+- Python 3.12
+- FastAPI
+- Uvicorn
+- Make (para automação de tarefas no Linux)
+- Outras dependências listadas em requirements
 
 ## 📦 Clonando o Repositório
-git clone (https://github.com/projeto-carreira-luizalabs-2025/pc-estoque/tree/v1)
+git clone https://github.com/projeto-carreira-luizalabs-2025/pc-estoque/tree/v1
 
 cd pc-estoque
 
@@ -41,6 +45,7 @@ make requirements-dev
 👉 https://www.msys2.org/
 - Após instalar, abra o terminal MSYS2 MSYS e execute:
 pacman -Syu
+
 pacman -S make
 - Depois de instalado, você poderá usar o make no terminal MSYS2 ou adicionar o caminho do make.exe no PATH para uso em outros terminais.
 
