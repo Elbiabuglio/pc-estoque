@@ -28,11 +28,11 @@ Accept: application/json
 
 
 ### Buscar itens no estoque pelo seller_id com paginação
-GET {{BASE_URL}}/estoque/buscar/?seller_id=1&page=1&page_size=10
+GET  http://{{BASE_URL}}/estoque/buscar/?seller_id=1&page=1&page_size=10
 Accept: application/json
 
 ### Buscar itens no estoque pelo sku com paginação
-GET http://{{BASE_URL}}/estoque/buscar/?sku=Mouse%20Gamer&page=1&page_size=10"
+GET http://{{BASE_URL}}/estoque/buscar/?sku=Mouse%20Gamer&page=1&page_size=10
 Accept: application/json
 
 
