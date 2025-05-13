@@ -90,10 +90,10 @@ make run-dev
 
 ou, se preferir executar manualmente:
 
-uvicorn app.api_main:app --reload
+uvicorn app01:app --reload
 
 ## 📖 Acesse a documentação interativa da API:
-- Swagger UI: http://localhost:8000/api/docs
+- Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
 ## 📬 Contribuições e Atualizações  
