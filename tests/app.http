@@ -46,3 +46,7 @@ Accept: application/json
     "sku": "Mouse Gamer",
     "quantidade": 25
 }
+
+### Deletar um item do estoque
+DELETE http://{{BASE_URL}}/estoque/1/Mouse%20Gamer HTTP/1.1
+Accept: application/json
