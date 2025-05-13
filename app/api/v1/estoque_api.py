@@ -4,7 +4,7 @@ from typing import List, Optional
 import json
 
 # Criando o router com prefixo /estoque
-estoque_routes = APIRouter(prefix="/estoque", tags=["Estoque"])
+estoque_routes = APIRouter(prefix="/api/estoque", tags=["Estoque"])
 
 # Modelo para os itens de estoque
 class ItemEstoque(BaseModel):
@@ -164,4 +164,25 @@ async def atualizar_item(seller_id: str, sku: str, item_atualizado: ItemEstoque)
             estoque[index] = item_atualizado.dict()
             salvar_estoque(estoque)
             return item_atualizado
+    raise HTTPException(status_code=404, detail="Item não encontrado")
+
+# Rota para deletar um item pelo seller_id e sku
+@estoque_routes.delete("/{seller_id}/{sku}")
+async def deletar_item(seller_id: str, sku: str):
+    """
+    Deleta um item do estoque com base em seller_id e sku.
+
+    Parâmetros:
+        seller_id: ID do vendedor.
+        sku: Código do produto.
+
+    Erros:
+        404 - Item não encontrado.
+    """
+    estoque = carregar_estoque()
+    for index, item in enumerate(estoque):
+        if item["seller_id"] == seller_id and item["sku"] == sku:
+            del estoque[index]
+            salvar_estoque(estoque)
+            return
     raise HTTPException(status_code=404, detail="Item não encontrado")
