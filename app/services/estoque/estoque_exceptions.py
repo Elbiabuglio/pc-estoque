@@ -1,21 +1,17 @@
 from app.common.exceptions import ConflictException
+from app.api.common.schemas.response import ErrorDetail
+
 
 class EstoqueAlreadyExistsException(ConflictException):
     def __init__(self):
         details = [
-            {
-                "message": "Estoque já existe",
-                "slug": "codigo-xxx-yyy",
-            }
+            ErrorDetail(
+                field="estoque",
+                location="body",
+                message="Estoque já existe",
+                slug="codigo-xxx-yyy",
+                ctx={},
+            )
         ]
         super().__init__(details)
 
-class EstoqueNotFoundException(ConflictException):
-    def __init__(self):
-        details = [
-            {
-                "message": "Estoque não encontrado",
-                "slug": "codigo-xxx-yyy",
-            }
-        ]
-        super().__init__(details)

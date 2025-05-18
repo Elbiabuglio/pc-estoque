@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from app.api.common.schemas.pagination import Paginator
+from app.services.estoque.estoque_exceptions import EstoqueAlreadyExistsException
 
 from ...models.estoque_model import Estoque
 from ...repositories.estoque_repository import EstoqueRepository
@@ -22,6 +23,9 @@ class EstoqueServices(CrudService[Estoque, UUID]):
         """
         Cria um novo estoque.
         """
+        existing = await self.repository.find_by_seller_id_and_sku(seller_id=estoque.seller_id, sku=estoque.sku)
+        if existing:
+            raise EstoqueAlreadyExistsException()
         
         return await self.repository.create(estoque)
 
@@ -32,7 +36,7 @@ class EstoqueServices(CrudService[Estoque, UUID]):
         Atualiza um estoque existente.
         """
         if not isinstance(estoque_update, EstoqueUpdate):
-            raise TypeError("estoque_update precisa ser do tipo EstoqueUpdate")
+            raise TypeError("So é permitido atualizar a quantidade do estoque")
         return await self.repository.update(seller_id=seller_id, sku=sku, quantidade=estoque_update.quantidade)
 
     async def delete(self, seller_id: str, sku: str) -> None:
