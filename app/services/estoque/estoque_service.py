@@ -2,9 +2,9 @@ from uuid import UUID
 
 from app.api.common.schemas.pagination import Paginator
 
-from ..models.estoque_model import Estoque
-from ..repositories.estoque_repository import EstoqueRepository
-from .base import CrudService
+from ...models.estoque_model import Estoque
+from ...repositories.estoque_repository import EstoqueRepository
+from ..base import CrudService
 
 
 class EstoqueServices(CrudService[Estoque, UUID]):
@@ -22,6 +22,7 @@ class EstoqueServices(CrudService[Estoque, UUID]):
         """
         Cria um novo estoque.
         """
+        
         return await self.repository.create(estoque)
 
     async def update(self, seller_id: str, sku: str, estoque_update) -> Estoque:
