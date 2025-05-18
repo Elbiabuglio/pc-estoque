@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from app.settings import api_settings
 
 
-router_estoque = APIRouter(prefix="/api", tags=["estoque"])
+router_estoque = APIRouter(prefix="/api", tags=["API"])
 
 
 def load_routes(router_estoque: APIRouter):
