@@ -22,7 +22,7 @@ class AuditModel(BaseModel):
 
 
 class PersistableEntity(UuidModel, AuditModel):
-    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True, frozen=False)
 
     @classmethod
     def from_json(cls, json_data: str):
