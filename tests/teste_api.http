@@ -1,0 +1,201 @@
+@hostname=localhost
+@port=8000
+
+@BASE_URL = http://{{hostname}}:{{port}}/api
+
+@seller_id = string123
+@sku = sku123
+@quantidade = 10
+
+
+### Criar item no estoque - item novo
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "teste123",
+  "sku": "sku123",
+  "quantidade": 5
+}
+
+# Use um seller_id e sku que você sabe que NÃO existem, por exemplo:
+@seller_id_inexistente = naoexiste
+@sku_inexistente = sku999
+
+### Tentar atualizar um item que não existe
+PATCH {{BASE_URL}}/estoque/{{seller_id_inexistente}}/{{sku_inexistente}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "quantidade": 20
+}
+
+# Use um seller_id e sku que você sabe que NÃO existem
+@seller_id_inexistente = naoexiste
+@sku_inexistente = sku999
+
+### Tentar deletar um item que não existe
+DELETE {{BASE_URL}}/estoque/{{seller_id_inexistente}}/{{sku_inexistente}}
+Accept: application/json
+
+###
+
+### Criar item com seller_id vazio
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "",
+  "sku": "sku123",
+  "quantidade": 10
+}
+
+### Criar item com sku vazio
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "seller123",
+  "sku": "",
+  "quantidade": 10
+}
+
+### Criar item com quantidade negativa
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "seller123",
+  "sku": "sku123",
+  "quantidade": -5
+}
+
+###
+
+### Atualizar item com quantidade negativa
+PATCH {{BASE_URL}}/estoque/seller123/sku123
+Content-Type: application/json
+Accept: application/json
+
+{
+  "quantidade": -5
+}
+
+### Deletar item inexistente
+DELETE {{BASE_URL}}/estoque/seller999/sku999
+Accept: application/json
+
+### Criar item sem quantidade
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "vendedor1",
+  "sku": "produto1"
+}
+
+### Criar item com quantidade como string
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "vendedor2",
+  "sku": "produto2",
+  "quantidade": "abc"
+}
+
+### Criar item com quantidade null
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "vendedor3",
+  "sku": "produto3",
+  "quantidade": null
+}
+
+### Criar item com seller_id nulo
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": null,
+  "sku": "produto4",
+  "quantidade": 10
+}
+
+
+### Criar item com sku nulo
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "vendedor5",
+  "sku": null,
+  "quantidade": 10
+}
+
+
+### Listar item inexistente
+GET {{BASE_URL}}/estoque/seller999/sku999
+Accept: application/json
+
+
+1️⃣ Criar um item novo (POST)
+### Criar item no estoque (esperado: 201 Created)
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "loja1",
+  "sku": "produto100",
+  "quantidade": 15
+}
+
+2️⃣ Listar todos os itens (GET)
+### Listar todos os itens do estoque (esperado: 200 OK)
+GET {{BASE_URL}}/estoque
+Accept: application/json
+
+3️⃣ Listar item por seller e sku (GET)
+### Listar item por seller_id e sku (esperado: 200 OK)
+GET {{BASE_URL}}/estoque/loja1/produto100
+Accept: application/json
+
+4️⃣ Atualizar quantidade do item (PATCH)
+### Atualizar quantidade do item (esperado: 200 OK)
+PATCH {{BASE_URL}}/estoque/loja1/produto100
+Content-Type: application/json
+Accept: application/json
+
+{
+  "quantidade": 20
+}
+
+
+### Criar item válido
+POST {{BASE_URL}}/estoque
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "teste123",
+  "sku": "sku123",
+  "quantidade": 10
+}
+
+### Deletar item teste123 / sku123
+DELETE http://localhost:8000/api/estoque/teste123/sku123
+Accept: application/json
+
