@@ -10,15 +10,16 @@
 @quantidade = 10
 
 ### Listar todos os itens do estoque
-GET {{BASE_URL}}/estoque HTTP/1.1
+GET {{BASE_URL}}/estoque 
 Accept: application/json
 
 ### List Estoque
 GET {{BASE_URL}}/estoque/list_estoque_api_estoque_get
 Accept: application/json
 
-### Create Estoque
-POST {{BASE_URL}}/estoque/create_estoque_api_estoque_post
+
+### Criar item no estoque
+POST {{BASE_URL}}/estoque
 Content-Type: application/json
 Accept: application/json
 
@@ -28,12 +29,12 @@ Accept: application/json
   "quantidade": {{quantidade}}
 }
 
-### List Estoque By Seller And Sku
-GET {{BASE_URL}}/estoque/list_estoque_by_seller_and_sku_api_estoque_seller_id__sku__get?seller_id={{seller_id}}&sku={{sku}}
+### Listar item no estoque pelo seller_id e sku
+GET {{BASE_URL}}/estoque/{{seller_id}}/{{sku}}
 Accept: application/json
 
-### Update Estoque By Seller And Sku
-PATCH {{BASE_URL}}/estoque/update_estoque_by_seller_and_sku_api_estoque_seller_id__sku__patch?seller_id={{seller_id}}&sku={{sku}}
+### Atualizar quantidade do item no estoque
+PATCH {{BASE_URL}}/estoque/{{seller_id}}/{{sku}}
 Content-Type: application/json
 Accept: application/json
 
@@ -41,6 +42,6 @@ Accept: application/json
   "quantidade": {{quantidade}}
 }
 
-### Delete Estoque By Seller And Sku
-DELETE {{BASE_URL}}/estoque/delete_estoque_by_seller_and_sku_api_estoque_seller_id__sku__delete?seller_id={{seller_id}}&sku={{sku}}
+### Deletar item do estoque pelo seller_id e sku
+DELETE {{BASE_URL}}/estoque/{{seller_id}}/{{sku}}
 Accept: application/json
