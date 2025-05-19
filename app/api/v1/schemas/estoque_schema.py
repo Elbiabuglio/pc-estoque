@@ -4,9 +4,9 @@ from app.models.estoque_model import Estoque
 
 
 class EstoqueSchema(SchemaType):
-    seller_id: str
-    sku: str
-    quantidade: int = Field(..., ge=0, description="Quantidade deve ser maior ou igual a zero")
+    seller_id: str = Field(..., min_length=1, description="seller_id não pode ser vazio")
+    sku: str = Field(..., min_length=1, description="sku não pode ser vazio")
+    quantidade: int = Field(..., ge=0, description="quantidade deve ser maior ou igual a zero")
 
 
 class EstoqueResponse(EstoqueSchema, ResponseEntity):
