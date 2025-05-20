@@ -3,10 +3,14 @@ from fastapi import APIRouter
 from app.settings import api_settings
 
 
-
-def load_routes(*args, **kwargs):
-    ...
+router_estoque = APIRouter(prefix="/api", tags=["API"])
 
 
-# Ainda faremos
-load_routes()
+def load_routes(router_estoque: APIRouter):
+    if api_settings.enable_estoque_resources:
+        from app.api.v1.routers.estoque_router import router
+
+        router_estoque.include_router(router)
+
+
+load_routes(router_estoque)

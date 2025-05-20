@@ -12,7 +12,7 @@ class UuidModel(BaseModel):
 
 
 class AuditModel(BaseModel):
-    created_at: datetime = Field(default_factory=utcnow, description="Data e hora da criação")
+    created_at: datetime | None = Field(default_factory=utcnow, description="Data e hora da criação")
     updated_at: datetime | None = Field(None, description="Data e hora da atualização")
     created_by: str | None = Field(None, description="Criado por")
     updated_by: str | None = Field(None, description="Atualizado por")
@@ -22,7 +22,7 @@ class AuditModel(BaseModel):
 
 
 class PersistableEntity(UuidModel, AuditModel):
-    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True, frozen=False)
 
     @classmethod
     def from_json(cls, json_data: str):

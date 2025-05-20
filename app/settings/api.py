@@ -53,7 +53,7 @@ class ApiSettings(AppSettings):
 
     filter_config: FilterConfig = Field(default=FilterConfig(), description="Configurações de filtros")
 
-    enable_seller_resources: bool = Field(default=True, description="Habilita Recursos de APIs do contexto de Seller")
+    enable_estoque_resources: bool = Field(default=True, description="Habilita Recursos de APIs do contexto de Estoque")
 
     enable_channel_resources: bool = Field(default=True, description="Habilita Recursos de APIs do contexto de Canal")
 
