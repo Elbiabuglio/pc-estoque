@@ -64,7 +64,6 @@ async def update_estoque_by_seller_and_sku(
 
 @router.delete(
     "/{seller_id}/{sku}",
-    response_model=EstoqueResponse,
     status_code=status.HTTP_200_OK,
 )
 @inject

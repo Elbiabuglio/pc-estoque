@@ -3,10 +3,40 @@
 @hostname=localhost
 @port=8000
 
-@BASE_URL={{hostname}}:{{port}}/api
+@BASE_URL = http://{{hostname}}:{{port}}/api/estoque
 
+@seller_id = string123
+@sku = sku123
+@quantidade = 10
 
 ### Listar todos os itens do estoque
+GET {{BASE_URL}}
+Accept: application/json
 
-GET http://{{BASE_URL}}/estoque HTTP/1.1
+### Criar item no estoque
+POST {{BASE_URL}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "seller_id": "{{seller_id}}",
+  "sku": "{{sku}}",
+  "quantidade": {{quantidade}}
+}
+
+### Listar item no estoque pelo seller_id e sku
+GET {{BASE_URL}}/{{seller_id}}/{{sku}}
+Accept: application/json
+
+### Atualizar quantidade do item no estoque
+PATCH {{BASE_URL}}/{{seller_id}}/{{sku}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "quantidade": {{quantidade}}
+}
+
+### Deletar item do estoque pelo seller_id e sku
+DELETE {{BASE_URL}}/{{seller_id}}/{{sku}}
 Accept: application/json
