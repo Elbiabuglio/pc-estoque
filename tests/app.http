@@ -3,7 +3,7 @@
 @hostname=localhost
 @port=8000
 
-@BASE_URL = http://{{hostname}}:{{port}}/api/estoque
+@BASE_URL = http://{{hostname}}:{{port}}/seller/v1/estoque
 
 @seller_id = string123
 @sku = sku123
