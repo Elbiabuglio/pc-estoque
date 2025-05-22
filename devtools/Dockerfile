@@ -1,44 +1,51 @@
-# PRimeira etapa: instalar os pacotes do Python
-# Monstar a estrutura de arquivos da aplicacão
+# Primeira etapa: instalar os pacotes do Python
+# Montar a estrutura de arquivos da aplicação
+FROM python:3.12-slim as construtor
 
-# --- ESTÁGIO DE CONSTRUÇÃO ---
-# Objetivo: Instalar dependências em um ambiente temporário.
-FROM python:3.12-slim AS construtor
-
-# Define o shell para garantir que os comandos funcionem corretamente
 SHELL ["/bin/bash", "-c"]
 
-# Define o diretório de trabalho no container
-WORKDIR /PC-Estoque
+WORKDIR /app
 
-# Copia os requirements para o container
-COPY requirements ./requirements
+COPY requirements.txt .
+COPY requirements ./requirements/
 
-# Atualiza o pip e instala as dependências de desenvolvimento
+
+RUN pip install --upgrade pip && pip install -r ./requirements.txt
+RUN pip install --upgrade pip && pip install -r ./requirements/develop.txt
+
+
+# Instalar meus pacotes
 RUN pip install --upgrade pip && \
-    pip install --no-cache-dir -r requirements/base.txt
+    python -m venv venv && \
+    /app/venv/bin/pip install --upgrade pip && \
+    /app/venv/bin/pip install --no-cache-dir -r requirements.txt && \
+    /app/venv/bin/pip install --no-cache-dir -r requirements/develop.txt
 
-# Define a variável de ambiente para o Python encontrar os módulos
-ENV PYTHONPATH=/PC-Estoque
 
-# Copia o código da aplicação
-COPY app /PC-Estoque/app
+# Etapa final (imagem leve)
+FROM python:3.12-slim
 
-# Copia o arquivo de requirements base
-COPY requirements/base.txt .
+WORKDIR /projeto
 
-# Copia o arquivo de variáveis de ambiente
-COPY devtools/dotenv.dev ./.env
+COPY devtools/dotenv.dev /projeto/.env
 
-# Compila os arquivos Python para bytecode (.pyc) para melhor desempenho
+
+# Copia o ambiente virtual
+COPY --from=construtor /app/venv /app/venv
+
+# Copia a aplicação inteira
+COPY . .
+
+# Compilar os arquivos .py
 RUN python -m compileall app
 
-# Expõe a porta que o Uvicorn irá utilizar.
+# Variável de ambiente para usar o venv
+ENV PATH="/app/venv/bin:$PATH"
+
 EXPOSE 8000
 
-# Comando para rodar a aplicaçãotainer.
-CMD ["uvicorn", "app.main_api:app", "--host", "0.0.0.0", "--port", "8000"]
-
+CMD ["uvicorn", "app.api_main:app", "--host", "0.0.0.0", "--port", "8000"]
 # Se quiser versionar:r
-    #docker build -t pc-estoque .
-    #docker run -p 8000:8000 pc-estoque:0.0.1
+    #docker build -f devtools/Dockerfile -t pc-estoque:0.0.1 .
+    #docker run -p 8000:8000 -e ENV=dev pc-estoque:0.0.1
+
