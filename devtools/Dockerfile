@@ -25,9 +25,9 @@ RUN pip install --upgrade pip && \
 # Etapa final (imagem leve)
 FROM python:3.12-slim
 
-WORKDIR /projeto
+WORKDIR /pc-estoque
 
-COPY devtools/dotenv.dev /projeto/.env
+COPY devtools/dotenv.dev /pc-estoque/.env
 
 
 # Copia o ambiente virtual
