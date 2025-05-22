@@ -9,17 +9,17 @@ class EstoqueSchema(SchemaType):
     quantidade: int = Field(..., ge=0, description="quantidade deve ser maior ou igual a zero")
 
 
-class EstoqueResponse(EstoqueSchema, ResponseEntity):
+class EstoqueResponseV2(EstoqueSchema, ResponseEntity):
     """Resposta adicionando"""
 
 
-class EstoqueCreate(EstoqueSchema):
+class EstoqueCreateV2(EstoqueSchema):
     """Schema para criação de Estoques"""
 
     def to_model(self) -> Estoque:
         return Estoque(**self.model_dump())
 
 
-class EstoqueUpdate(SchemaType):
+class EstoqueUpdateV2(SchemaType):
     """Permite apenas a atualização da quantidade"""
     quantidade: int = Field(..., ge=0, description="Quantidade deve ser maior ou igual a zero")

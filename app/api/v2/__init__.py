@@ -3,12 +3,12 @@ from fastapi import APIRouter
 from app.settings import api_settings
 
 
-router_estoque = APIRouter(prefix="/seller/v1", tags=["API"])
+router_estoque = APIRouter(prefix="/seller/v2", tags=["API"])
 
 
 def load_routes(router_estoque: APIRouter):
     if api_settings.enable_estoque_resources:
-        from app.api.v1.routers.estoque_router import router
+        from app.api.v2.routers.estoque_router import router
 
         router_estoque.include_router(router)
 

@@ -2,16 +2,16 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, Header, status
 
 from app.api.common.schemas import ListResponse, Paginator, get_request_pagination
-from app.api.v1.schemas.estoque_schema import EstoqueCreate, EstoqueResponse, EstoqueUpdate
+from app.api.v2.schemas.estoque_schema import EstoqueCreateV2, EstoqueResponseV2, EstoqueUpdateV2
 from app.services.estoque_service import EstoqueServices
 from app.container import Container
 
 
-router = APIRouter(prefix="/seller/v2/estoque", tags=["Estoque V2"])
+router = APIRouter(prefix="/estoque", tags=["Estoque V2"])
 
 @router.get(
     "",
-    response_model=ListResponse[EstoqueResponse],
+    response_model=ListResponse[EstoqueResponseV2],
     status_code=status.HTTP_200_OK,
 )
 @inject
@@ -25,7 +25,7 @@ async def list_estoque_v2(
 
 @router.get(
     "/{sku}",
-    response_model=EstoqueResponse,
+    response_model=EstoqueResponseV2,
     status_code=status.HTTP_200_OK,
 )
 @inject
@@ -38,12 +38,12 @@ async def list_estoque_by_seller_and_sku_v2(
 
 @router.post(
     "",
-    response_model=EstoqueResponse,
+    response_model=EstoqueResponseV2,
     status_code=status.HTTP_201_CREATED,
 )
 @inject
 async def create_estoque_v2(
-    estoque: EstoqueCreate,
+    estoque: EstoqueCreateV2,
     x_seller_id: str = Header(..., alias="x-seller-id"),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
@@ -53,13 +53,13 @@ async def create_estoque_v2(
 
 @router.patch(
     "/{sku}",
-    response_model=EstoqueResponse,
+    response_model=EstoqueResponseV2,
     status_code=status.HTTP_200_OK,
 )
 @inject 
 async def update_estoque_by_seller_and_sku_v2(
     sku: str,
-    estoque_update: EstoqueUpdate,
+    estoque_update: EstoqueUpdateV2,
     x_seller_id: str = Header(..., alias="x-seller-id"),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
