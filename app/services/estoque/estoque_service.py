@@ -1,11 +1,17 @@
 from uuid import UUID
 
 from app.api.common.schemas.pagination import Paginator
+<<<<<<< HEAD:app/services/estoque/estoque_service.py
 
 from app.services.estoque.estoque_exceptions import EstoqueAlreadyExistsException
 from ...models.estoque_model import Estoque
 from ...repositories.estoque_repository import EstoqueRepository
 from ..base import CrudService
+=======
+from ..models.estoque_model import Estoque
+from ..repositories.estoque_repository import EstoqueRepository
+from .base import CrudService
+>>>>>>> v2.2:app/services/estoque_service.py
 
 
 class EstoqueServices(CrudService[Estoque, UUID]):
@@ -30,7 +36,12 @@ class EstoqueServices(CrudService[Estoque, UUID]):
         return await self.repository.create(estoque)
 
     async def update(self, seller_id: str, sku: str, estoque_update) -> Estoque:
+<<<<<<< HEAD:app/services/estoque/estoque_service.py
         from app.api.v1.schemas.estoque_schema import EstoqueUpdate        
+=======
+        from app.api.v1.schemas.estoque_schema import EstoqueUpdate 
+
+>>>>>>> v2.2:app/services/estoque_service.py
 
         """
         Atualiza um estoque existente.

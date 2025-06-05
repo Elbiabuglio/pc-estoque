@@ -1,4 +1,4 @@
-#Informações Base
+# Informações Base
 
 ## 📦 Estoque no Marketplace
 
@@ -6,10 +6,10 @@ O estoque no marketplace representa a quantidade de unidades disponíveis para v
 
 Cada produto deve possuir um valor de estoque atualizado, que será utilizado pelo sistema para:
 
-- Permitir ou restringir a finalização de pedidos com base na disponibilidade;
-- Gerar alertas ou notificações em casos de baixa quantidade;
-- Manter a integridade da operação, evitando vendas de produtos indisponíveis (quebra de estoque);
-- Auxiliar em processos de reposição e análise de desempenho de vendas.
+* Permitir ou restringir a finalização de pedidos com base na disponibilidade;
+* Gerar alertas ou notificações em casos de baixa quantidade;
+* Manter a integridade da operação, evitando vendas de produtos indisponíveis (quebra de estoque);
+* Auxiliar em processos de reposição e análise de desempenho de vendas.
 
 O controle de estoque pode ser feito de forma manual (por meio de atualizações diretas via painel do vendedor ou planilhas) ou automática (por integrações com ERPs, APIs ou sistemas de gestão de estoque).
 
