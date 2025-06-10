@@ -1,7 +1,9 @@
-from pydantic import Field
+from pydantic import Field, PostgresDsn
+from dotenv import load_dotenv
 
 from .base import BaseSettings
 
+load_dotenv()
 
 class AppSettings(BaseSettings):
     version: str = Field(default="0.2.1", title="Versão da aplicação")
@@ -13,3 +15,6 @@ class AppSettings(BaseSettings):
 
 
 settings = AppSettings()
+
+app_db_url: PostgresDsn = Field(..., title="URI para o banco Postgresql")
+

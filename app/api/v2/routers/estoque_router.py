@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Header, status
 
 from app.api.common.schemas import ListResponse, Paginator, get_request_pagination
 from app.api.v2.schemas.estoque_schema import EstoqueCreateV2, EstoqueResponseV2, EstoqueUpdateV2
-from app.services.estoque_service import EstoqueServices
+from app.services.estoque.estoque_service import EstoqueServices
 from app.container import Container
 
 
