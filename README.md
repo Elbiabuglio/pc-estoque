@@ -111,60 +111,62 @@ Para facilitar a configuração e execução do ambiente, este projeto também p
 
 ### 📑 docker-compose.yml
 
-version: "3.8"
-
-services:
-  app:
-    build:
-      context: .
-      dockerfile: devtools/Dockerfile
-    container_name: pc-estoque
-    ports:
-      - "8000:8000"
-    environment:
-      - ENV=dev
-    env_file:
-      - devtools/dotenv.dev
-    working_dir: /pc-estoque
-    command: ["uvicorn", "app.api_main:app", "--host", "0.0.0.0", "--port", "8000"]
-    restart: unless-stopped
-
-  sonarqube:
-    image: sonarqube:latest
-    container_name: pc-sonarqube
-    ports:
-      - "9000:9000"
-    volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_logs:/opt/sonarqube/logs
-      - sonarqube_extensions:/opt/sonarqube/extensions
-    restart: unless-stopped
-
-volumes:
-  sonarqube_data:
-  sonarqube_logs:
-  sonarqube_extensions:
-
+```yml
+  version: "3.8"
+  
+  services:
+    app:
+      build:
+        context: .
+        dockerfile: devtools/Dockerfile
+      container_name: pc-estoque
+      ports:
+        - "8000:8000"
+      environment:
+        - ENV=dev
+      env_file:
+        - devtools/dotenv.dev
+      working_dir: /pc-estoque
+      command: ["uvicorn", "app.api_main:app", "--host", "0.0.0.0", "--port", "8000"]
+      restart: unless-stopped
+  
+    sonarqube:
+      image: sonarqube:latest
+      container_name: pc-sonarqube
+      ports:
+        - "9000:9000"
+      volumes:
+        - sonarqube_data:/opt/sonarqube/data
+        - sonarqube_logs:/opt/sonarqube/logs
+        - sonarqube_extensions:/opt/sonarqube/extensions
+      restart: unless-stopped
+  
+  volumes:
+    sonarqube_data:
+    sonarqube_logs:
+    sonarqube_extensions:
+```
 
 ### ▶️ Comandos Docker Compose
 
 ⚠️ Certifique-se de ter o Docker e o Docker Compose instalados em sua máquina.
 
 Subir todos os serviços (aplicação + SonarQube):
-
-docker-compose up -d --build
-
+```bash
+  docker-compose up -d --build
+```
 Subir apenas o SonarQube:
-
-docker-compose up -d sonarqube
-
+```bash
+  docker-compose up -d sonarqube
+```
 Subir apenas a aplicação:
-
-docker-compose up -d --build app
-
+```bash
+  docker-compose up -d --build app
+```
 Parar todos os containers:
-
-docker-compose stop
+```bash
+  docker-compose stop
+```
 
 ## 📬 Contribuições e Atualizações  
 
