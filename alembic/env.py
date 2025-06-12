@@ -1,7 +1,8 @@
 from logging.config import fileConfig
 
-from os import getenv
-from dotenv import load_dotenv
+import os
+
+import dotenv
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
@@ -12,7 +13,10 @@ from alembic import context
 from app.integrations.database.sqlalchemy_client import Base
 
 
-load_dotenv()
+ENV = os.getenv("ENV", "production")
+is_dev = ENV == "dev"
+
+dotenv.load_dotenv(override=is_dev)
 
 
 # this is the Alembic Config object, which provides
@@ -33,9 +37,9 @@ target_metadata = Base.metadata
 # ... etc.
 
 # XXX Ajustado para carregar da memória
-if (url_db := getenv("APP_DB_URL")) is not None:
+if (app_db_url := os.getenv("APP_DB_URL")) is not None:
     print("URL DB carregada da memoria")
-    config.set_main_option("sqlalchemy.url", url_db)
+    config.set_main_option("sqlalchemy.url", app_db_url)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.

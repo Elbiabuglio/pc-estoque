@@ -15,6 +15,7 @@ class Container(containers.DeclarativeContainer):
 
     # Integrações
     sql_client = providers.Singleton(SQLAlchemyClient, config.app_db_url)
+    print("SQLAlchemyClient initialized with app_db_url:", config.app_db_url)
 
     # Repositórios
     estoque_repository = providers.Singleton(EstoqueRepository, sql_client=sql_client)
