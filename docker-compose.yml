@@ -21,7 +21,8 @@ services:
       - "8000:8000"
     environment:
       - ENV=dev
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/estoque_db
+      - APP_DB_URL=postgresql+asyncpg://admin:admin@db:5432/estoque_db
+
     env_file:
       - devtools/dotenv.dev
     depends_on:
