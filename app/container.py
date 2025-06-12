@@ -5,14 +5,19 @@ from app.services import HealthCheckService
 from app.services.estoque.estoque_service import EstoqueServices
 from app.settings import AppSettings
 
+from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
+
 
 class Container(containers.DeclarativeContainer):
     config = providers.Configuration()
 
     settings = providers.Singleton(AppSettings)
 
+    # Integrações
+    sql_client = providers.Singleton(SQLAlchemyClient, config.app_db_url)
+
     # Repositórios
-    estoque_repository = providers.Singleton(EstoqueRepository)
+    estoque_repository = providers.Singleton(EstoqueRepository, sql_client=sql_client)
 
     # Serviços
     health_check_service = providers.Singleton(

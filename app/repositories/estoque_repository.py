@@ -3,28 +3,37 @@ from app.common.datetime import utcnow
 from app.common.exceptions import NotFoundException
 from ..models import Estoque
 from .base import AsyncMemoryRepository
+from sqlalchemy import Column, Integer
 
+from .base.sqlalchemy_crud_repository import SQLAlchemyCrudRepository
+from .base.sqlalchemy_entity_base import SellerIdSkuPersistableEntityBase
+from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 
-class EstoqueRepository(AsyncMemoryRepository[Estoque, UUID]):
+class EstoqueBase(SellerIdSkuPersistableEntityBase):
+    __tablename__ = "pc_estoque"
+
+    quantidade = Column(Integer, nullable=False)
+
+class EstoqueRepository(SQLAlchemyCrudRepository[Estoque, EstoqueBase]):
     
+    def __init__(self, sql_client: SQLAlchemyClient):
+        """
+        Inicializa o repositório de estoque com o cliente SQLAlchemy.
+        """
+        super().__init__(sql_client=sql_client, model_class=Estoque, entity_base_class=EstoqueBase)
+
     async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Estoque:
         """
         Busca um estoque pelo seller_id e SKU.
         """
-        result = next(
-            (s for s in self.memory if s.seller_id == seller_id and s.sku == sku),
-            None
-        )
-        if result:
-            return result
-        raise NotFoundException()
+        result = await super().find_by_seller_id_and_sku(seller_id, sku)
+        result = result.model_dump() if result else None
 
     async def create(self, item: Estoque) -> Estoque:
         """
         Cria um novo estoque.
         """
-        self.memory.append(item)
-        return item
+        return await super().create(item)
 
     async def update(self, seller_id: str, sku: str, quantidade: int) -> Estoque:
         """
