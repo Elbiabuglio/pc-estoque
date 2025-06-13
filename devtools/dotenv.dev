@@ -1,4 +1,4 @@
 ENV=dev
-APP_DB_URL_PG=postgresql+asyncpg://admin:admin@localhost:5432/bd01
+
 # Esta variável é utilizada pelo alembic
-APP_DB_URL=postgresql://admin:admin@localhost:5432/estoque_db
+APP_DB_URL=postgresql://admin:admin@db:5432/estoque_db

@@ -23,14 +23,14 @@ services:
       - ENV=dev
       - APP_DB_URL=postgresql+asyncpg://admin:admin@db:5432/estoque_db
 
-    env_file:
-      - devtools/dotenv.dev
-    depends_on:
-      - db
-    working_dir: /pc-estoque
-    command:
-      ["uvicorn", "app.api_main:app", "--host", "0.0.0.0", "--port", "8000"]
-    restart: unless-stopped
+  #   env_file:
+  #     - devtools/dotenv.dev
+  #   depends_on:
+  #     - db
+  #   working_dir: /pc-estoque
+  #   command:
+  #     ["uvicorn", "app.api_main:app", "--host", "0.0.0.0", "--port", "8000"]
+  #   restart: unless-stopped
 #  sonarqube:
 #   image: sonarqube:latest
 #  container_name: pc-sonarqube
