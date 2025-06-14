@@ -2,15 +2,16 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
 from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
-from app.common.datetime import utcnow
 
 from app.models import PersistableEntity, QueryModel, Estoque
 
 from .async_crud_repository import AsyncCrudRepository
 from .sqlalchemy_entity_base import PersistableEntityBase
 
-T = TypeVar("T", bound=PersistableEntity)
-B = TypeVar("B", bound=PersistableEntityBase)
+from app.common.datetime import utcnow
+
+T = TypeVar("T", bound=PersistableEntity)  # Modelo Pydantic
+B = TypeVar("B", bound=PersistableEntityBase)  # Entidade base do SQLAlchemy
 Q = TypeVar("Q", bound=QueryModel)
 
 
@@ -55,7 +56,7 @@ class SQLAlchemyCrudRepository(AsyncCrudRepository[T], Generic[T, B]):
         """
         Salva uma entidade no repositório.
         """
-        base = self.to_base(model)  # Converte o modelo pydantic para a entidade base do SQLAlchemy
+        base = self.to_base(model)  
 
         async with self.sql_client.make_session() as session:
             async with session.begin():
@@ -82,28 +83,52 @@ class SQLAlchemyCrudRepository(AsyncCrudRepository[T], Generic[T, B]):
             base = await self._find_base_by_seller_id_sku_on_session(seller_id, sku, session)
         model = self.to_model(base)
 
-        print(model)
-
         return model
 
-    async def patch_by_seller_id_and_sku(self, seller_id, sku, patch_entity):
+    def _apply_sort(self, stmt, sort: dict):
+        for field, direction in sort.items():
+            if hasattr(self.entity_base_class, field):
+                column = getattr(self.entity_base_class, field)
+                stmt = stmt.order_by(column.desc() if direction == -1 else column.asc())
+        return stmt
+
+    async def find(self, filters: Q, limit: int = 20, offset: int = 0, sort: dict | None = None) -> list[T]:
         """
-        Atualiza uma entidade pelo seller_id e sku.
+        Busca uma lista de entidades com base nos filtros, limite, offset e ordenação.
         """
+        def apply_operator(stmt, column, op, v):
+            if op == "$lt":
+                return stmt.where(column < v)
+            elif op == "$lte":
+                return stmt.where(column <= v)
+            elif op == "$gt":
+                return stmt.where(column > v)
+            elif op == "$gte":
+                return stmt.where(column >= v)
+            return stmt
 
         async with self.sql_client.make_session() as session:
-            async with session.begin():
-                base = await self._find_base_by_seller_id_sku_on_session(seller_id, sku, session)
-                if not base:
-                    return None
+            stmt = self.sql_client.init_select_estoque(self.entity_base_class)
+            
+            if hasattr(filters, "to_query_dict") and callable(filters.to_query_dict):
+                filters_dict = filters.to_query_dict()
+            elif hasattr(filters, "dict") and callable(filters.dict):
+                filters_dict = filters.dict()
+            elif isinstance(filters, dict):
+                filters_dict = filters
+            else:
+                raise TypeError("O parâmetro filters deve ser conversível para dicionário.")
 
-                for field, value in patch_entity.model_dump().items():
-                    if value is not None and hasattr(base, field):
-                        setattr(base, field, value)
+            for field, value in filters_dict.items():
+                if hasattr(self.entity_base_class, field):
+                    stmt = stmt.where(getattr(self.entity_base_class, field) == value)
 
-            updated_model = self.to_model(base)
-            return updated_model
-
+            stmt = stmt.limit(limit).offset(offset)
+            result = await session.execute(stmt)
+            bases = result.scalars().all()
+            models = [model for base in bases if (model := self.to_model(base)) is not None]
+            return models
+        
     async def delete_by_seller_id_and_sku(self, seller_id: str, sku: str) -> bool:
         """
         Deleta uma entidade pelo seller_id e sku.
@@ -125,10 +150,29 @@ class SQLAlchemyCrudRepository(AsyncCrudRepository[T], Generic[T, B]):
                 if can_update := base is not None:
                     base.updated_at = utcnow()
                     for key, value in model.model_dump().items():
+                        # XXX Precisamos tomar cuidado com `id`
                         if key not in self.pk_fields:
                             setattr(base, key, value)
                     base.updated_at = utcnow()
             if can_update:
                 await session.commit()
         model = self.to_model(base)
+
         return model
+
+    async def patch_by_seller_id_and_sku(self, seller_id, sku, patch_entity):
+        """
+        Atualiza uma entidade parcialmente pelo seller_id e sku.
+        """
+        async with self.sql_client.make_session() as session:
+            async with session.begin():
+                base = await self._find_base_by_seller_id_sku_on_session(seller_id, sku, session)
+                if not base:
+                    return None
+
+                for field, value in patch_entity.model_dump().items():
+                    if value is not None and hasattr(base, field):
+                        setattr(base, field, value)
+
+            updated_model = self.to_model(base)
+            return updated_model

@@ -51,7 +51,7 @@ def add_error_handlers(app: FastAPI):
                 ErrorDetail(
                     **{
                         "message": error["msg"],
-                        "location": error["loc"][0],
+                        "location": "body",
                         "slug": error["type"],
                         "field": ", ".join(map(str, error["loc"][1:])),
                         "ctx": ctx,
@@ -82,7 +82,7 @@ def add_error_handlers(app: FastAPI):
                 ErrorDetail(
                     **{
                         "message": error["msg"],
-                        "location": error["loc"][0] if error["loc"] else "body",
+                        "location": "body",
                         "slug": error["type"],
                         "field": ", ".join(map(str, error["loc"][1:])) if error["loc"] else "",
                         "ctx": ctx,

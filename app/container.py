@@ -2,7 +2,7 @@ from dependency_injector import containers, providers
 
 from app.repositories import EstoqueRepository
 from app.services import HealthCheckService
-from app.services.estoque.estoque_service import EstoqueServices
+from app.services import EstoqueServices
 from app.settings import AppSettings
 
 from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
