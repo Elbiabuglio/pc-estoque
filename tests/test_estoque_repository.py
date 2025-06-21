@@ -1,23 +1,13 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
 from app.models.estoque_model import Estoque
 from app.repositories.estoque_repository import EstoqueRepository, EstoqueBase
 from app.repositories.base.sqlalchemy_crud_repository import SQLAlchemyCrudRepository
 from app.repositories.base.sqlalchemy_entity_base import SellerIdSkuPersistableEntityBase
 
-# ---------------- Fixtures ---------------- #
+from tests.fixtures.estoque_repository_fixtures import mock_sql_client, estoque_repository
 
-@pytest.fixture
-def mock_sql_client():
-    """Fixture que cria e retorna um cliente SQL mockado com sessão assíncrona simulada."""
-    mock_client = MagicMock()
-    mock_client.session = AsyncMock()
-    return mock_client
-
-@pytest.fixture
-def estoque_repository(mock_sql_client):
-    """Fixture que instancia o EstoqueRepository usando o cliente SQL mockado."""
-    return EstoqueRepository(sql_client=mock_sql_client)
 
 # ---------------- Testes EstoqueRepository ---------------- #
 
