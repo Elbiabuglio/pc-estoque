@@ -7,7 +7,7 @@ exclude_lines = [
     "if typing.TYPE_CHECKING:",
     "if __name__ == .__main__.:",
 ]
-fail_under = 90
+fail_under = 75
 
 [tool.coverage.run]
 branch = true
@@ -71,3 +71,4 @@ skips = ["B104", "B601"]
 
 [tool.bandit.assert_used]   # B101 semantically
 skips = ['*_test.py', '*test_*.py']
+

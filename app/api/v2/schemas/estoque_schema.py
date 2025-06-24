@@ -14,7 +14,7 @@ class EstoqueCreateV2(EstoqueSchema):
     """Schema para criação de Estoques"""
 
     def to_model(self) -> Estoque:
-        return Estoque(**self.dict(exclude_unset=True))
+        return Estoque(**self.model_dump(exclude_unset=True))
 
 class EstoqueUpdateV2(SchemaType):
     """Permite apenas a atualização da quantidade"""

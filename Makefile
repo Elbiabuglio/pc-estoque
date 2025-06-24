@@ -72,3 +72,6 @@ run:
 
 run-dev:
 	@ENV=$(ENV) $(INIT) --reload
+
+test:
+	PYTHONPATH=. pytest

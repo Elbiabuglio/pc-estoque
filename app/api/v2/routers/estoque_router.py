@@ -54,7 +54,7 @@ async def create_estoque_v2(
     x_seller_id: str = Header(..., alias="x-seller-id"),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
-    data = estoque.dict(exclude_unset=True)
+    data = estoque.model_dump(exclude_unset=True)
     data["seller_id"] = x_seller_id
     estoque_model = Estoque(**data)
     return await estoque_service.create(estoque_model)
