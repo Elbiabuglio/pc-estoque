@@ -3,113 +3,203 @@
 ## 📄 Descrição
 O PC-Estoque é um sistema de gerenciamento de estoque desenvolvido para oferecer uma solução simples, prática e eficiente no controle de produtos disponíveis em marketplaces. A aplicação permite realizar o cadastro de produtos, controlar entradas e saídas de estoque, atualizar quantidades disponíveis e visualizar informações em tempo real — garantindo maior organização, segurança e agilidade nas operações comerciais.
 
-
 ## 👥 Equipe de Desenvolvimento
+* Elbia Simone Buglio
+* Laura Gabriely
+* Victor Teixeira
 
-- Elbia Simone Buglio
+## 💻 Tecnologias Utilizadas
+Este projeto foi construído utilizando as seguintes tecnologias principais:
+* **Python 3.12**
+* **FastAPI**: Framework web para a construção de APIs.
+* **SQLAlchemy**: ORM para interação com o banco de dados.
+* **PostgreSQL**: Banco de dados relacional.
+* **Alembic**: Ferramenta para gerenciamento de migrações de banco de dados.
+* **Docker & Docker Compose**: Para containerização da aplicação e seus serviços.
+* **Pytest**: Para a execução dos testes automatizados.
+* **Keycloak**: Para gerenciamento de identidade e acesso.
 
-- Fabio Romero
+## 🚀 Como Rodar o Projeto
 
-- Laura Gabriely
+Existem duas maneiras principais de executar este projeto: **localmente** (ideal para desenvolvimento e depuração) ou via **Docker** (simula um ambiente de produção).
 
-- Victor Teixeira
+### 1. Configuração e Execução Local
 
+Siga os passos abaixo para configurar o ambiente de desenvolvimento na sua máquina.
 
-## ⚙️ Configuração do Ambiente Local
+#### **Pré-requisitos**
+* Python 3.12
+* Um servidor de banco de dados PostgreSQL em execução.
 
-- Python 3.12
-- FastAPI
-- Uvicorn
-- Make (para automação de tarefas no Linux)
-- Outras dependências listadas em requirements
-
-## 📦 Clonando o Repositório
-
-git clone https://github.com/projeto-carreira-luizalabs-2025/pc-estoque/tree/v1
-
+#### **Clonando o Repositório**
+```bash
+git clone https://github.com/projeto-carreira-luizalabs-2025/pc-estoque.git
 cd pc-estoque
+```
 
-## 📑 Configuração no Linux 🐧
+#### **Configuração do Ambiente (Linux 🐧)**
 
-Crie o ambiente virtual:
-make build-venv
+1.  **Crie o ambiente virtual:**
+    ```bash
+    make build-venv
+    ```
+2.  **Ative o ambiente virtual:**
+    ```bash
+    source ./venv/bin/activate
+    ```
+3.  **Instale as dependências:**
+    ```bash
+    make requirements-dev
+    ```
 
-Ative o ambiente virtual:
-source ./venv/bin/activate
+#### **Configuração do Ambiente (Windows 🪟)**
 
-Instale as dependências do projeto:
-make requirements-dev
+1.  **Crie o ambiente virtual:**
+    ```bash
+    python -m venv venv
+    ```
+2.  **Ative o ambiente virtual:**
+    ```bash
+    .\venv\Scripts\activate
+    ```
+3.  **Instale as dependências:**
+    ```bash
+    pip install -r requirements/develop.txt
+    ```
 
-⚠️ A partir deste ponto, todos os comandos deverão ser executados dentro do ambiente virtual ativado.
+#### **Configurando Variáveis de Ambiente e Banco de Dados**
 
-## 📑 Configuração no Windows 🪟
+1.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
+    ```bash
+    # No Linux
+    cp devtools/dotenv.dev .env
 
-### **📌 1️⃣ Instalar o make via MSYS2 (se ainda não instalado)**
+    # No Windows
+    copy devtools\dotenv.dev .env
+    ```
 
-- Baixe o instalador do MSYS2:
-  
-👉 https://www.msys2.org/
-- Após instalar, abra o terminal MSYS2 MSYS e execute:
-pacman -Syu
+2.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
 
-pacman -S make
-- Depois de instalado, você poderá usar o make no terminal MSYS2 ou adicionar o caminho do make.exe no PATH para uso em outros terminais.
+3.  **Aplique as migrações do banco de dados:** Para criar as tabelas necessárias, execute o Alembic.
+    ```bash
+    alembic upgrade head
+    ```
 
-### **📌 2️⃣ Criar o ambiente virtual:**
-
-python -m venv venv
-
-**Ativar o ambiente virtual:**
-
-venv\Scripts\activate
-
-**Instalar as dependências do projeto:**
-
-pip install -r requirements\develop.txt
-
-📌 Obs: As dependências estão organizadas na pasta requirements
-
-## 📌 Observações
-Confirme a versão do Python instalada:
-
-python --version
-- No Linux, este projeto utiliza make para automação de tarefas.
-- No Windows, os comandos são executados manualmente (a não ser que você instale o make via MSYS2 como descrito acima).
-  
-⚠️ Certifique-se de ativar o ambiente virtual antes de executar qualquer comando relacionado ao projeto.
-
-## ▶️ Execução
-
-**1️⃣ Configurar as variáveis de ambiente**
-
-Copie o arquivo de variáveis de desenvolvimento:
-
-- **Linux**
-cp devtools/dotenv.dev .env
-- **Windows**
-copy devtools\dotenv.dev .env
-
-**2️⃣ Subir a API**
-
-Com o ambiente virtual ativado e as variáveis configuradas, execute:
-
+#### **Executando a Aplicação**
+Com o ambiente virtual ativado, inicie o servidor da API:
+```bash
 make run-dev
+```
 
-ou, se preferir executar manualmente:
-
+Ou, manualmente:
+```bash
 uvicorn app.api_main:app --reload
+```
 
-## 📖 Acesse a documentação interativa da API:
+### 2. Comfiguração e Execução com Docker
 
-- Swagger UI: http://localhost:8000/api/docs
-- ReDoc: http://localhost:8000/api/redoc
+O Docker simplifica todo o processo, gerindo a aplicação, a base de dados e o Keycloak em contentores isolados. Siga os passos abaixo:
 
-## 📬 Contribuições e Atualizações  
+#### **Pré-requisitos**
+* Docker
+* Docker Compose
 
-**Fluxo para contribuição:**
+#### **Passo 1: Preparar Variáveis de Ambiente**
+Antes de iniciar, é necessário criar um ficheiro de configuração `.env`. Pode copiar o ficheiro de exemplo fornecido.
 
-1. Realize um **fork** do repositório.
-2. Crie uma **branch descritiva** para a sua feature ou correção.
-3. Submeta via **Pull Request**.
-4. Aguarde o **Code Review** pela equipe de desenvolvimento.
-5. Após aprovação, a alteração será integrada ao código principal.
+* **No Linux/macOS:**
+    ```bash
+    cp devtools/dotenv.dev .env
+    ```
+* **No Windows:**
+    ```bash
+    copy devtools\dotenv.dev .env
+    ```
+    *(Este ficheiro já vem pré-configurado para o ambiente Docker, pelo que não são necessários ajustes.)*
+
+#### **Passo 2: Iniciar a Aplicação Principal (App + Banco de Dados)**
+Este comando irá iniciar os contêineres da aplicação e do banco de dados PostgreSQL.
+
+```bash
+docker-compose up -d --build
+```
+Aguarde alguns instantes para que os serviços estejam operacionais.
+
+#### **Passo 3: Executar a Carga Inicial de Dados**
+Com a aplicação e o banco de dados no ar, execute o script para popular o banco com os dados iniciais. **Este passo é essencial.**
+
+```bash
+docker-compose exec app python devtools/scripts/carregar_estoque_inicial.py
+```
+
+Neste ponto, a API principal já está funcional.
+
+#### **Passo 4 (Opcional): Iniciar Serviços Adicionais**
+Se você precisar dos outros serviços, como o **Keycloak** ou o **SonarQube**, inicie-os com seus respectivos arquivos do Compose.
+
+* **Para o SonarQube:**
+    ```bash
+    docker-compose -f docker-compose-sonar.yml up -d
+    ```
+* **Para o Keycloak:**
+    *(Aqui você deve usar o nome do arquivo docker-compose específico do Keycloak que você possui no projeto).*
+    ```bash
+    # Exemplo: docker-compose -f docker-compose-keycloak.yml up -d
+    ```
+
+#### **Comandos Úteis do Docker**
+* **Para parar a aplicação principal (app e db):**
+    ```bash
+    docker-compose down
+    ```
+* **Para parar um serviço adicional (ex: sonar):**
+    ```bash
+    docker-compose -f docker-compose-sonar.yml down
+    ```
+
+## 🧪 Testes e Qualidade de Código
+
+O projeto está configurado com um conjunto de ferramentas para garantir a qualidade e a consistência do código.
+
+### **Executando os Testes**
+Para rodar a suíte de testes unitários e de integração, utilize o Pytest:
+```bash
+pytest
+```
+
+Para gerar um relatório de cobertura de testes, execute:
+```bash
+pytest --cov=app --cov-report=html
+```
+O relatório será gerado na pasta `htmlcov/`. Você pode abrir o arquivo `index.html` em seu navegador para visualizar os detalhes.
+
+### **Análise com SonarQube**
+O projeto está configurado para análise com o SonarQube.
+
+1.  **Inicie o SonarQube:**
+    ```bash
+    docker-compose -f docker-compose-sonar.yml up -d
+    ```
+
+2.  **Execute o Scanner:** Após rodar os testes e gerar o `coverage.xml`, execute o scanner do Sonar para enviar os resultados para o servidor. Você precisará de um token de autenticação.
+    ```bash
+    docker run --rm \
+     -e SONAR_HOST_URL=http://localhost:9000 \
+     -e SONAR_TOKEN="SEU_TOKEN_AQUI" \
+     -v "$(pwd)":/usr/src \
+     sonarsource/sonar-scanner-cli
+    ```
+
+## 📖 Documentação da API
+Após iniciar a aplicação (localmente ou com Docker), você pode acessar a documentação interativa da API nos seguintes endereços:
+
+* **Swagger UI:** [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+* **ReDoc:** [http://localhost:8000/api/redoc](http://localhost:8000/api/redoc)
+
+## 📫 Contribuições
+O projeto está aberto a contribuições. O fluxo para contribuição é o seguinte:
+1.  Realize um **fork** do repositório.
+2.  Crie uma **branch** descritiva para a sua feature ou correção.
+3.  Submeta um **Pull Request**.
+4.  Aguarde o **Code Review** pela equipe de desenvolvimento.
+5.  Após a aprovação, sua alteração será integrada ao código principal.
