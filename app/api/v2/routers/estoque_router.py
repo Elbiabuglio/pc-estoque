@@ -1,9 +1,11 @@
 from typing import Optional
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends, Header, status
+from fastapi import APIRouter, Depends, status
 
-from app.api.common.schemas import ListResponse, Paginator, get_request_pagination
+from app.api.common.dependencies import get_required_seller_id
+from app.api.common.schemas import ListResponse, Paginator
 from app.api.common.auth_handler import do_auth 
+from app.api.common.schemas.pagination import get_request_pagination
 from app.api.v2.schemas.estoque_schema import EstoqueCreateV2, EstoqueResponseV2, EstoqueUpdateV2
 from app.models.estoque_model import Estoque
 from app.services import EstoqueServices
@@ -19,12 +21,12 @@ router = APIRouter(prefix="/estoque", tags=["Estoque V2"], dependencies=[Depends
 )
 @inject
 async def list_estoque_v2(
-    x_seller_id: str = Header(..., alias="x-seller-id"),
+    seller_id: str = Depends(get_required_seller_id),
     quantity: Optional[int] = None,  
     paginator: Paginator = Depends(get_request_pagination),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
-    filters = {"seller_id": x_seller_id}
+    filters = {"seller_id": seller_id}
     if quantity is not None:
         filters["quantidade"] = str(quantity)
     result = await estoque_service.list(paginator=paginator, filters=filters)
@@ -38,10 +40,10 @@ async def list_estoque_v2(
 @inject
 async def list_estoque_by_seller_and_sku_v2(
     sku: str,
-    x_seller_id: str = Header(..., alias="x-seller-id"),
+    seller_id: str = Depends(get_required_seller_id),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
-    return await estoque_service.get_by_seller_id_and_sku(x_seller_id, sku)
+    return await estoque_service.get_by_seller_id_and_sku(seller_id, sku)
 
 
 @router.post(
@@ -52,11 +54,11 @@ async def list_estoque_by_seller_and_sku_v2(
 @inject
 async def create_estoque_v2(
     estoque: EstoqueCreateV2,
-    x_seller_id: str = Header(..., alias="x-seller-id"),
+    seller_id: str = Depends(get_required_seller_id),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
     data = estoque.model_dump(exclude_unset=True)
-    data["seller_id"] = x_seller_id
+    data["seller_id"] = seller_id
     estoque_model = Estoque(**data)
     return await estoque_service.create(estoque_model)
 
@@ -69,10 +71,10 @@ async def create_estoque_v2(
 async def update_estoque_by_seller_and_sku_v2(
     sku: str,
     estoque_update: EstoqueUpdateV2,
-    x_seller_id: str = Header(..., alias="x-seller-id"),
+    seller_id: str = Depends(get_required_seller_id),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
-    return await estoque_service.update(x_seller_id, sku, estoque_update.quantidade)
+    return await estoque_service.update(seller_id, sku, estoque_update.quantidade)
 
 @router.delete(
     "/{sku}",
@@ -81,7 +83,7 @@ async def update_estoque_by_seller_and_sku_v2(
 @inject
 async def delete_estoque_by_seller_and_sku_v2(
     sku: str,
-    x_seller_id: str = Header(..., alias="x-seller-id"),
+    seller_id: str = Depends(get_required_seller_id),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
-    return await estoque_service.delete(x_seller_id, sku)
+    return await estoque_service.delete(seller_id, sku)

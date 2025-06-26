@@ -217,8 +217,8 @@ O projeto está configurado para análise com o SonarQube.
 
 Após iniciar a aplicação (localmente ou com Docker), você pode acessar a documentação interativa da API nos seguintes endereços:
 
-- **Swagger UI:** [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
-- **ReDoc:** [http://localhost:8000/api/redoc](http://localhost:8000/api/redoc)
+- **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- **ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ## 📫 Contribuições
 
