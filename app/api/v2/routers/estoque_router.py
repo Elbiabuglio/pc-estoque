@@ -3,13 +3,14 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, Header, status
 
 from app.api.common.schemas import ListResponse, Paginator, get_request_pagination
+from app.api.common.auth_handler import do_auth 
 from app.api.v2.schemas.estoque_schema import EstoqueCreateV2, EstoqueResponseV2, EstoqueUpdateV2
 from app.models.estoque_model import Estoque
 from app.services import EstoqueServices
 from app.container import Container
 
 
-router = APIRouter(prefix="/estoque", tags=["Estoque V2"])
+router = APIRouter(prefix="/estoque", tags=["Estoque V2"], dependencies=[Depends(do_auth)])
 
 @router.get(
     "",
