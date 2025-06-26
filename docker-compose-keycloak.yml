@@ -57,4 +57,4 @@ services:
       POSTGRES_PASSWORD: password # ATENÇÃO: Altere esta senha para produção!
     #volumes:
     #  - keycloak_postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped~
+    restart: unless-stopped
