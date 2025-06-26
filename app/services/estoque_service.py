@@ -41,11 +41,11 @@ class EstoqueServices(CrudService[Estoque, str]):
         estoque_found = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
         self._raise_not_found(seller_id, sku, estoque_found is None)
         
-        if quantidade <= 0:
-            self._raise_bad_request("quantidade deve ser maior que zero.", "quantidade", quantidade)
+        temp_estoque = Estoque(**(dict(estoque_found) if isinstance(estoque_found, dict) else estoque_found.model_dump()))
+        temp_estoque.quantidade = quantidade
+        self._validate_positive_estoque(temp_estoque)
         
-        updated_data = dict(estoque_found) if isinstance(estoque_found, dict) else estoque_found.model_dump()
-        updated_data["quantidade"] = quantidade
+        updated_data = temp_estoque.model_dump()
         updated_data["updated_at"] = utcnow()
         
         updated_entity = Estoque(**updated_data)
