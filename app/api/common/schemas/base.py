@@ -8,6 +8,8 @@ from pydantic import ConfigDict, Field
 class UuidSchema(SchemaType):
     id: UuidType | None = Field(None, description="Id único do objeto")
 
+class IntSchema(SchemaType):
+    id: int | None = Field(None, description="Identificador único do objeto")
 
 class OwnershipSchema(SchemaType):
     """
@@ -24,6 +26,6 @@ class AuditSchema(SchemaType):
     updated_by: str | None = Field(None, description="Atualizado por")
 
 
-class ResponseEntity(AuditSchema, UuidSchema, OwnershipSchema):
+class ResponseEntity(AuditSchema, IntSchema, OwnershipSchema):
 
     model_config = ConfigDict(from_attributes=True)

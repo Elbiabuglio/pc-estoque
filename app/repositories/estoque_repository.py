@@ -1,59 +1,65 @@
-from uuid import UUID
-from app.common.datetime import utcnow
-from app.common.exceptions import NotFoundException
-from ..models import Estoque
-from .base import AsyncMemoryRepository
+from typing import Any, Dict, Optional, TypeVar
+
+from app.models.estoque_model import Estoque
+from .base.sqlalchemy_crud_repository import SQLAlchemyCrudRepository
+from .base.sqlalchemy_entity_base import SellerIdSkuPersistableEntityBase
+from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
+
+T = TypeVar("T", bound=Estoque)
+B = TypeVar("B", bound=SellerIdSkuPersistableEntityBase)
+
+from sqlalchemy import Column, Integer
+
+class EstoqueBase(SellerIdSkuPersistableEntityBase):
+    __tablename__ = "pc_estoque"
+    quantidade = Column(Integer, nullable=False)
+
+class EstoqueRepository(SQLAlchemyCrudRepository[Estoque, EstoqueBase]):
+
+    def __init__(self, sql_client: SQLAlchemyClient):
+        """
+        Inicializa o repositório de preços com o cliente SQLAlchemy.
+        :param sql_client: Instância do cliente SQLAlchemy.
+        """
+        super().__init__(sql_client=sql_client, model_class=Estoque, entity_base_class=EstoqueBase)
 
 
-class EstoqueRepository(AsyncMemoryRepository[Estoque, UUID]):
-    
-    async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Estoque:
+    async def find_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Optional[Dict[str, Any]]:
         """
-        Busca um estoque pelo seller_id e SKU.
-        """
-        result = next(
-            (s for s in self.memory if s.seller_id == seller_id and s.sku == sku),
-            None
-        )
-        if result:
-            return result
-        raise NotFoundException()
+        Busca um estoque pela junção de seller_id + sku
 
-    async def create(self, item: Estoque) -> Estoque:
+        :param seller_id: ID do vendedor.
+        :param sku: Código do produto.
+        :return: Dicionário do estoque encontrado.
         """
-        Cria um novo estoque.
-        """
-        self.memory.append(item)
-        return item
 
-    async def update(self, seller_id: str, sku: str, quantidade: int) -> Estoque:
-        """
-        Atualiza um estoque existente.
-        """
-        estoque = await self.find_by_seller_id_and_sku(seller_id, sku)
-        estoque.quantidade = quantidade
-        estoque.updated_at = utcnow()
-        for index, item in enumerate(self.memory):
-            if item.id == estoque.id:
-                self.memory[index] = estoque
-                return estoque
-        raise NotFoundException()
+        result = await super().find_by_seller_id_and_sku(seller_id, sku)
+        result = result.model_dump() if result else None
 
-    async def delete(self, item_id: UUID) -> None:
-        """
-        Deleta um estoque pelo ID.
-        """
-        for index, item in enumerate(self.memory):
-            if item.id == item_id:
-                del self.memory[index]
-                return
-        raise NotFoundException()
+        return result
 
-    async def list(self) -> list[Estoque]:
+    async def update_by_seller_id_and_sku(self, seller_id: str, sku: str, estoque_update: Estoque) -> Dict[str, Any]:
         """
-        Lista todos os estoques.
+        Atualiza um estoque na memória pela junção de seller_id + sku.
+
+        :param seller_id: ID do vendedor.
+        :param sku: Código do produto.
+        :param estoque_update: Dicionário com os dados a serem atualizados.
+        :return: True se encontrado, False caso contrário.
         """
-        return list(self.memory)  # Retorna cópia para segurança
+        result = await super().update_by_seller_id_and_sku(seller_id, sku, estoque_update)
+        return result
+
+    async def delete_by_seller_id_and_sku(self, seller_id: str, sku: str) -> None:
+        """
+        Remove um estoque da memória com base no ID.
+
+        :param seller_id: ID do vendedor.
+        :param sku: Código do produto.
+        :return: None
+        """
+        deleted = await super().delete_by_seller_id_and_sku(seller_id, sku)
+        return deleted
 
 
 __all__ = ["EstoqueRepository"]

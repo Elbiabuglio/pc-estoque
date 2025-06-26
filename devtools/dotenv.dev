@@ -1,1 +1,4 @@
 ENV=dev
+
+# Esta variável é utilizada pelo alembic
+APP_DB_URL=postgresql://admin:admin@db:5432/estoque_db

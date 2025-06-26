@@ -1,8 +1,6 @@
-from app.models.base import PersistableEntity
+from app.models.base import SellerSkuIntPersistableEntity
 
 
-class Estoque(PersistableEntity):
-    seller_id: str
-    sku: str
+class Estoque(SellerSkuIntPersistableEntity):
     quantidade: int
     
