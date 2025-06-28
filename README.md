@@ -73,13 +73,13 @@ cd pc-estoque
     pip install -r requirements/develop.txt
     ```
 
-#### **Configurando Variáveis de Ambiente e Banco de Dados**
+#### **Configurando Variáveis de Ambiente e Banco de Dados Para o Ambiente de Desenvolvimento**
 
 1.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
 
     ```bash
     # No Linux
-    cp devtools/dotenv.dev .env
+    make load-dev-env
 
     # No Windows
     copy devtools\dotenv.dev .env
@@ -88,7 +88,36 @@ cd pc-estoque
 2.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
 
 3.  **Aplique as migrações do banco de dados:** Para criar as tabelas necessárias, execute o Alembic.
+
     ```bash
+    # No Linux
+    make migration
+
+    # No Windows
+    alembic upgrade head
+    ```
+
+#### **Configurando Variáveis de Ambiente e Banco de Dados Para o Ambiente de Teste**
+
+1.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
+
+    ```bash
+    # No Linux
+    make load-test-env
+
+    # No Windows
+    copy devtools\dotenv.test .env
+    ```
+
+2.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
+
+3.  **Aplique as migrações do banco de dados:** Para criar as tabelas necessárias, execute o Alembic.
+
+    ```bash
+    # No Linux
+    make migration
+
+    # No Windows
     alembic upgrade head
     ```
 
@@ -108,6 +137,8 @@ uvicorn app.api_main:app --reload
 
 ### 2. Comfiguração e Execução com Docker
 
+obs: O docker-compose esta configurado para subir a Api, o banco de dados e o Keycloak.
+
 O Docker simplifica todo o processo, gerindo a aplicação, a base de dados e o Keycloak em contentores isolados. Siga os passos abaixo:
 
 #### **Pré-requisitos**
@@ -121,7 +152,7 @@ Antes de iniciar, é necessário criar um ficheiro de configuração `.env`. Pod
 
 - **No Linux/macOS:**
   ```bash
-  cp devtools/dotenv.dev .env
+  make load-dev-env
   ```
 - **No Windows:**
   ```bash
@@ -129,45 +160,37 @@ Antes de iniciar, é necessário criar um ficheiro de configuração `.env`. Pod
   ```
   _(Este ficheiro já vem pré-configurado para o ambiente Docker, pelo que não são necessários ajustes.)_
 
-#### **Passo 2: Iniciar a Aplicação Principal (App + Banco de Dados)**
+#### **Passo 2: Iniciar a Aplicação (App + Banco de Dados + Keycloak)**
 
-Este comando irá iniciar os contêineres da aplicação e do banco de dados PostgreSQL.
+Este comando irá iniciar os contêineres da aplicação e do banco de dados PostgreSQL e o Keycloak, alem de realizar a migração do banco de dados e carregar o estoque inicial.
 
 ```bash
-docker-compose up -d --build
+  # No Linux
+  make docker-up
+
+  # No Windows
+  docker-compose -f docker-compose-keycloak.yml -f docker-compose.yml up -d
+  docker-compose exec app alembic upgrade head
+  docker-compose exec app python devtools/scripts/carregar_estoque_inicial.py
+
 ```
 
 Aguarde alguns instantes para que os serviços estejam operacionais.
 
-#### **Passo 3: Executar a Carga Inicial de Dados**
-
-Com a aplicação e o banco de dados no ar, execute o script para popular o banco com os dados iniciais. **Este passo é essencial.**
-
-```bash
-docker-compose exec app python devtools/scripts/carregar_estoque_inicial.py
-```
-
-Neste ponto, a API principal já está funcional.
-
 #### **Passo 4 (Opcional): Iniciar Serviços Adicionais**
 
-Se você precisar dos outros serviços, como o **Keycloak** ou o **SonarQube**, inicie-os com seus respectivos arquivos do Compose.
+Se você precisar dos outros serviços, como o **SonarQube**, inicie-os com seus respectivos arquivos do Compose.
 
 - **Para o SonarQube:**
   ```bash
   docker-compose -f docker-compose-sonar.yml up -d
-  ```
-- **Para o Keycloak:**
-  _(Aqui você deve usar o nome do arquivo docker-compose específico do Keycloak que você possui no projeto)._
-  ```bash
-  # Exemplo: docker-compose -f docker-compose-keycloak.yml up -d
   ```
 
 #### **Comandos Úteis do Docker**
 
 - **Para parar a aplicação principal (app e db):**
   ```bash
-  docker-compose down
+  make  down
   ```
 - **Para parar um serviço adicional (ex: sonar):**
   ```bash
@@ -178,17 +201,49 @@ Se você precisar dos outros serviços, como o **Keycloak** ou o **SonarQube**, 
 
 O projeto está configurado com um conjunto de ferramentas para garantir a qualidade e a consistência do código.
 
+### **Configurando Variáveis de Ambiente e Banco de Dados Para o Ambiente de Teste**
+
+1.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
+
+    ```bash
+    # No Linux
+    make load-test-env
+
+    # No Windows
+    copy devtools\dotenv.test .env
+    ```
+
+2.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
+
+3.  **Aplique as migrações do banco de dados:** Para criar as tabelas necessárias, execute o Alembic.
+
+    ```bash
+    # No Linux
+    make migration
+
+    # No Windows
+    alembic upgrade head
+    ```
+
 ### **Executando os Testes**
 
 Para rodar a suíte de testes unitários e de integração, utilize o Pytest:
 
 ```bash
+# No Linux
+make test
+
+# No Windows
 pytest
 ```
 
 Para gerar um relatório de cobertura de testes, execute:
 
 ```bash
+# No Linux
+make coverage
+
+# No Windows
 pytest --cov=app --cov-report=html
 ```
 
