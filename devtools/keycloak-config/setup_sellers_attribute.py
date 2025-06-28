@@ -4,7 +4,7 @@ import json
 import os
 
 # --- Configurações ---
-KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "http://localhost:8080")
+KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "http://host.docker.internal:8080")
 REALM_NAME = os.getenv("REALM_NAME", "marketplace")
 ADMIN_USER = os.getenv("KEYCLOAK_ADMIN_USER", "admin_marketplace")
 ADMIN_PASSWORD = os.getenv("KEYCLOAK_ADMIN_PASSWORD", "senha123")

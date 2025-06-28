@@ -23,11 +23,18 @@ class KeycloakAdapter:
         return self._well_known
 
     def _load_well_known(self):
-        with httpx.Client() as http_client:
-            response = http_client.get(self.well_known_url)
-            response.raise_for_status()
-            wk = response.json()
-        return wk
+        try:
+            with httpx.Client() as http_client:
+                response = http_client.get(self.well_known_url, timeout=5)
+                response.raise_for_status()
+                wk = response.json()
+            return wk
+        except httpx.HTTPStatusError as e:
+            print(f"Erro HTTP ao carregar well-known: {e.response.status_code} - {e.response.text}")
+        except httpx.RequestError as e:
+            print(f"Erro de conexão ao carregar well-known: {str(e)}")
+        except Exception as e:
+            print(f"Erro inesperado: {str(e)}")
 
     def get_authorization_endpoint(self):
         well_known = self.get_well_known()
@@ -72,15 +79,20 @@ class KeycloakAdapter:
             # Obtendo o kid (key id) no cabeçalho
             kid, alg = self.get_header_info_from_token(token)
             key = await self.get_alg_key_for_kid(kid)
-
+            
+            try:
             # Verificando o token
-            jwt_key = jwt.PyJWK(jwk_data=key, algorithm=alg)
-            info_token = jwt.decode(
-                token,
-                jwt_key,                # Chave pública a ser usada
-                algorithms=[alg],       # Qual é o algoritmo
-                options={"verify_aud": False},  # Vou validar desconsiderando a audiência
-            )
+                jwt_key = jwt.PyJWK(jwk_data=key, algorithm=alg)
+
+                info_token = jwt.decode(
+                    token,
+                    jwt_key,                # Chave pública a ser usada
+                    algorithms=[alg],       # Qual é o algoritmo
+                    options={"verify_aud": False},  # Vou validar desconsiderando a audiência
+                )
+                print("Token validado com sucesso")
+            except Exception as e:
+                print(f"Erro ao decodificar o token: {str(e)}")
             return info_token
 
         except jwt.ExpiredSignatureError as exception:

@@ -1,4 +1,4 @@
-services: 
+services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.5 # Use uma versão LTS ou a mais recente estável
     ports:
@@ -50,7 +50,7 @@ services:
     hostname: keycloak-db
     container_name: keycloak-db
     ports:
-      - "5435:5432" # Porta para acesso direto ao DB (opcional)
+      - "5435:5435" # Porta para acesso direto ao DB (opcional)
     environment:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak

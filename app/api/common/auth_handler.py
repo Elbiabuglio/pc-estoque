@@ -29,6 +29,7 @@ async def do_auth(
     """
     Responsável por fazer a autenticação com algum IDP OpenId.
     """
+
     try:
         info_token = await openid_adapter.validate_token(token)
     except OAuthException as exception:

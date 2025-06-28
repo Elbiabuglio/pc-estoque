@@ -16,7 +16,6 @@ class Container(containers.DeclarativeContainer):
 
     # Integrações
     sql_client = providers.Singleton(SQLAlchemyClient, config.app_db_url)
-    print("SQLAlchemyClient initialized with app_db_url:", config.app_db_url)
 
     # Keycloak Adapter
     keycloak_adapter = providers.Singleton(KeycloakAdapter, config.app_openid_wellknown)
