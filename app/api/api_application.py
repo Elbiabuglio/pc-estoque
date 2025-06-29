@@ -23,7 +23,7 @@ def create_app(settings: ApiSettings, router: APIRouter) -> FastAPI:
         title=settings.app_name,
         openapi_url=settings.openapi_path,
         version=settings.version,
-        docs_url="/docs",
+        docs_url="/api/docs",
        
     )
     # Para garantir compatibilidade com o kong não podemos usar recursos acima da versão 3.0.2
