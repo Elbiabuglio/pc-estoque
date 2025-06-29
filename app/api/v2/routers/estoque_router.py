@@ -1,6 +1,7 @@
 from typing import Optional
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, status
+from fastapi import HTTPException
 
 from app.api.common.dependencies import get_required_seller_id
 from app.api.common.schemas import ListResponse, Paginator
@@ -36,6 +37,7 @@ async def list_estoque_v2(
     "/{sku}",
     response_model=EstoqueResponseV2,
     status_code=status.HTTP_200_OK,
+    response_model_exclude_unset=True,  
 )
 @inject
 async def list_estoque_by_seller_and_sku_v2(
@@ -43,7 +45,12 @@ async def list_estoque_by_seller_and_sku_v2(
     seller_id: str = Depends(get_required_seller_id),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
-    return await estoque_service.get_by_seller_id_and_sku(seller_id, sku)
+    if estoque_service is None:
+        raise HTTPException(status_code=404, detail="Estoque service not found")
+    estoque = await estoque_service.get_by_seller_id_and_sku(seller_id, sku)
+    if estoque is None:
+        raise HTTPException(status_code=404, detail="Estoque não encontrado")
+    return estoque
 
 
 @router.post(
@@ -74,7 +81,10 @@ async def update_estoque_by_seller_and_sku_v2(
     seller_id: str = Depends(get_required_seller_id),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
-    return await estoque_service.update(seller_id, sku, estoque_update.quantidade)
+    result = await estoque_service.update(seller_id, sku, estoque_update.quantidade)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Estoque não encontrado")
+    return result
 
 @router.delete(
     "/{sku}",
@@ -86,4 +96,7 @@ async def delete_estoque_by_seller_and_sku_v2(
     seller_id: str = Depends(get_required_seller_id),
     estoque_service: EstoqueServices = Depends(Provide[Container.estoque_service]),
 ):
-    return await estoque_service.delete(seller_id, sku)
+    result = await estoque_service.delete(seller_id, sku)
+    if not result:
+        raise HTTPException(status_code=404, detail="Estoque não encontrado")
+    return None
