@@ -1,125 +1,298 @@
-#estoque_router
+from datetime import datetime
 import pytest
-from httpx import AsyncClient, ASGITransport
-import pytest_asyncio
-from dataclasses import dataclass
-from app.api_main import app
+from unittest.mock import AsyncMock
+from httpx import ASGITransport, AsyncClient
+from app.api.common.auth_handler import do_auth
+from app.container import Container
+from app.services import EstoqueServices
+from app.models.estoque_model import Estoque
+from app.common.datetime import utcnow
 
+mock = AsyncMock(spec=EstoqueServices)
+Container.estoque_service.override(mock)
 
-# ----- Fixtures -----
+from app.api_main import app 
 
-@pytest_asyncio.fixture
-async def async_client():
-    """Cliente HTTP assíncrono para testes."""
-    transport = ASGITransport(app=app)
+# ----------------------------
+# Fixtures
+# ----------------------------
+
+@pytest.fixture
+def mock_estoque_service():
+    yield mock
+    Container.estoque_service.reset_override()
+
+@pytest.fixture
+def app_fixture():
+    return app
+
+@pytest.fixture
+def mock_do_auth(app_fixture):
+    app_fixture.dependency_overrides[do_auth] = lambda: None
+    yield
+    app_fixture.dependency_overrides.pop(do_auth, None)
+
+@pytest.fixture
+async def async_client(app_fixture):
+    transport = ASGITransport(app=app_fixture)
     async with AsyncClient(transport=transport, base_url="http://localhost:8000/seller/v2") as client:
         yield client
 
-@pytest_asyncio.fixture
-async def mock_do_auth(monkeypatch):
-    """Mock da autenticação."""
-    async def fake_do_auth():
-        return True
-
-    monkeypatch.setattr("app.api.v2.routers.estoque_router.do_auth", fake_do_auth)
+@pytest.fixture
+def header_seller_id():
+    return {"x-seller-id": "seller-123"}
 
 @pytest.fixture
-def headers():
-    """Cabeçalho padrão de seller."""
-    return {"x-seller-id": "1"}
+def now():
+    """Fixture para retornar a data e hora atual."""
+    return utcnow()
 
-@dataclass
-class Estoque:
-    seller_id: str
-    sku: str
-    quantidade: int
+# ----------------------------
+# Testes: GET /estoque
+# ----------------------------
 
-@pytest.fixture
-def test_estoques():
-    """Lista de estoques mockados."""
-    return [
-        Estoque(seller_id="1", sku="ABC123", quantidade=10),
-        Estoque(seller_id="2", sku="DEF456", quantidade=20),
-        Estoque(seller_id="3", sku="GHI789", quantidade=30),
+@pytest.mark.asyncio
+async def test_listar_estoques(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Testa a listagem de estoques."""
+    now = datetime.utcnow()
+    mock_estoque_service.list.return_value = [
+        Estoque(
+            sku="ABC123",
+            quantidade=10,
+            seller_id="seller-123",
+            updated_at=now,
+            created_by="tester",
+            updated_by="tester",
+            audit_created_at=now,
+            audit_updated_at=now,
+            id=1
+        ),
+        Estoque(
+            sku="DEF456",
+            quantidade=5,
+            seller_id="seller-123",
+            updated_at=now,
+            created_by="tester",
+            updated_by="tester",
+            audit_created_at=now,
+            audit_updated_at=now,
+            id=2
+        ),
     ]
 
+    resposta = await async_client.get("/estoque", headers=header_seller_id)
 
-# ----- Testes -----
+    assert resposta.status_code == 200
+    data = resposta.json()
+    assert isinstance(data, dict)
+    assert "results" in data
+    assert isinstance(data["results"], list)
+    assert len(data["results"]) == 2
+    assert data["results"][0]["sku"] == "ABC123"
+    assert data["results"][1]["sku"] == "DEF456"
+    assert "meta" in data
+    mock_estoque_service.list.assert_called_once()
 
-@pytest.mark.usefixtures("mock_do_auth", "async_client")
-class TestEstoqueRouterV2:
+@pytest.mark.asyncio
+async def test_listar_estoques_sem_header(async_client):
+    """Deve retornar erro se x-seller-id não for enviado."""
+    resposta = await async_client.get("/estoque")
+    assert resposta.status_code in (400, 401, 422)
 
-    @pytest.mark.asyncio
-    async def test_listar_estoques(self, async_client: AsyncClient, headers):
-        """Deve retornar lista de estoques com status 200."""
-        resposta = await async_client.get("/estoque", headers=headers)
-        assert resposta.status_code == 200
-        assert "results" in resposta.json()
+@pytest.mark.asyncio
+async def test_listar_estoques_com_quantity(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Testa a listagem de estoques com filtro de quantidade."""
+    now = datetime.utcnow()
+    mock_estoque_service.list.return_value = [
+        Estoque(
+            sku="ABC123",
+            quantidade=5,
+            seller_id="seller-123",
+            updated_at=now,
+            created_by="tester",
+            updated_by="tester",
+            audit_created_at=now,
+            audit_updated_at=now,
+            id=1
+        ),
+    ]
+    resposta = await async_client.get("/estoque?quantity=5", headers=header_seller_id)
+    assert resposta.status_code == 200
+    data = resposta.json()
+    assert len(data["results"]) == 1
+    assert data["results"][0]["quantidade"] == 5
 
-    @pytest.mark.asyncio
-    async def test_buscar_estoque_por_sku(self, async_client: AsyncClient, test_estoques):
-        """Deve retornar estoque por SKU com status 200."""
-        estoque = test_estoques[0]
-        resposta = await async_client.get(
-            f"/estoque/{estoque.sku}",
-            headers={"x-seller-id": estoque.seller_id}
-        )
-        assert resposta.status_code == 200
-        assert resposta.json()["seller_id"] == estoque.seller_id
-        assert resposta.json()["sku"] == estoque.sku
+# ----------------------------
+# Testes: GET /estoque/{sku}
+# ----------------------------
 
-    @pytest.mark.asyncio
-    async def test_criar_estoque(self, async_client: AsyncClient):
-        """Deve criar um novo estoque com status 201."""
-        novo_estoque = {"seller_id": "3", "sku": "C", "quantidade": 100}
-        resposta = await async_client.post(
-            "/estoque",
-            json=novo_estoque,
-            headers={"x-seller-id": "3"}
-        )
-        assert resposta.status_code == 201
-        assert resposta.json()["seller_id"] == "3"
-        assert resposta.json()["sku"] == "C"
+@pytest.mark.asyncio
+async def test_buscar_estoque_por_sku(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Testa a busca de estoque por SKU."""
+    sku = "ABC123"
+    now = datetime.utcnow()
+    mock_estoque_service.get_by_seller_id_and_sku.return_value = Estoque(
+        sku=sku,
+        quantidade=10,
+        seller_id="seller-123",
+        updated_at=now,
+        created_by="tester",
+        updated_by="tester",
+        audit_created_at=now,
+        audit_updated_at=now,
+        id=None
+    )
 
-    @pytest.mark.asyncio
-    async def test_atualizar_estoque(self, async_client: AsyncClient, test_estoques):
-        """Deve atualizar estoque com PUT e retornar status 200."""
-        estoque = test_estoques[0]
-        update = {"quantidade": 50}
-        resposta = await async_client.put(
-            f"/estoque/{estoque.sku}",
-            json=update,
-            headers={"x-seller-id": estoque.seller_id}
-        )
-        assert resposta.status_code == 200
-        assert resposta.json()["quantidade"] == 50
+    resposta = await async_client.get(f"/estoque/{sku}", headers=header_seller_id)
 
-    @pytest.mark.asyncio
-    async def test_patch_estoque(self, async_client: AsyncClient, test_estoques):
-        """Deve atualizar parcialmente o estoque com PATCH."""
-        estoque = test_estoques[0]
-        patch = {"quantidade": 75}
-        resposta = await async_client.patch(
-            f"/estoque/{estoque.sku}",
-            json=patch,
-            headers={"x-seller-id": estoque.seller_id}
-        )
-        assert resposta.status_code == 200
-        assert resposta.json()["quantidade"] == 75
+    assert resposta.status_code == 200
+    data = resposta.json()
+    assert data["sku"] == sku
+    assert data["quantidade"] == 10
+    mock_estoque_service.get_by_seller_id_and_sku.assert_called_once_with("seller-123", sku)
 
-    @pytest.mark.asyncio
-    async def test_deletar_estoque(self, async_client: AsyncClient, test_estoques):
-        """Deve deletar o estoque e confirmar exclusão."""
-        estoque = test_estoques[0]
-        resposta = await async_client.delete(
-            f"/estoque/{estoque.sku}",
-            headers={"x-seller-id": estoque.seller_id}
-        )
-        assert resposta.status_code == 204
+@pytest.mark.asyncio
+async def test_buscar_estoque_por_sku_inexistente(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Deve retornar 404 se o estoque não existir."""
+    sku = "NAOEXISTE"
+    mock_estoque_service.get_by_seller_id_and_sku.return_value = None
 
-        # Verificar se o recurso foi realmente excluído
-        resposta_get = await async_client.get(
-            f"/estoque/{estoque.sku}",
-            headers={"x-seller-id": estoque.seller_id}
-        )
-        assert resposta_get.status_code == 404
+    resposta = await async_client.get(f"/estoque/{sku}", headers=header_seller_id)
+    assert resposta.status_code == 404
+
+@pytest.mark.asyncio
+async def test_buscar_estoque_servico_none(async_client, mock_do_auth, header_seller_id, monkeypatch):
+    """Deve retornar 404 se o estoque_service for None."""
+    from app.api.v2.routers import estoque_router
+
+    monkeypatch.setattr(
+        estoque_router,
+        "Container",
+        type("FakeContainer", (), {"estoque_service": lambda: None})
+    )
+    resposta = await async_client.get("/estoque/ABC123", headers=header_seller_id)
+    assert resposta.status_code == 404
+
+# ----------------------------
+# Testes: POST /estoque
+# ----------------------------
+
+@pytest.mark.asyncio
+async def test_criar_estoque(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Testa a criação de um novo estoque."""
+    payload = {
+        "sku": "ABC123",
+        "quantidade": 15
+    }
+    now = datetime.utcnow()
+    mock_estoque_service.create.return_value = Estoque(
+        sku=payload["sku"],
+        quantidade=payload["quantidade"],
+        seller_id="seller-123",
+        updated_at=now,
+        created_by="tester",
+        updated_by="tester",
+        audit_created_at=now,
+        audit_updated_at=now,
+        id=None
+    )
+
+    resposta = await async_client.post("/estoque", json=payload, headers=header_seller_id)
+
+    assert resposta.status_code == 201
+    data = resposta.json()
+    assert data["sku"] == payload["sku"]
+    assert data["quantidade"] == payload["quantidade"]
+    mock_estoque_service.create.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_criar_estoque_payload_invalido(async_client, mock_do_auth, header_seller_id):
+    """Deve retornar 422 se payload for inválido."""
+    payload = {"sku": "ABC123"}  # faltando 'quantidade'
+    resposta = await async_client.post("/estoque", json=payload, headers=header_seller_id)
+    assert resposta.status_code == 422
+
+# ----------------------------
+# Testes: PATCH /estoque/{sku}
+# ----------------------------
+
+@pytest.mark.asyncio
+async def test_atualizar_estoque(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Testa a atualização de um estoque existente."""
+    sku = "ABC123"
+    nova_quantidade = 25
+    now = datetime.utcnow()
+    mock_estoque_service.update.return_value = Estoque(
+        sku=sku,
+        quantidade=nova_quantidade,
+        seller_id="seller-123",
+        updated_at=now,
+        created_by="tester",
+        updated_by="tester",
+        audit_created_at=now,
+        audit_updated_at=now,
+        id=None
+    )
+
+    resposta = await async_client.patch(
+        f"/estoque/{sku}",
+        json={"quantidade": nova_quantidade},
+        headers=header_seller_id
+    )
+
+    assert resposta.status_code == 200
+    data = resposta.json()
+    assert data["sku"] == sku
+    assert data["quantidade"] == nova_quantidade
+    mock_estoque_service.update.assert_called_once_with("seller-123", sku, nova_quantidade)
+
+@pytest.mark.asyncio
+async def test_atualizar_estoque_quantidade_invalida(async_client, mock_do_auth, header_seller_id):
+    """Deve retornar 422 se quantidade for inválida."""
+    sku = "ABC123"
+    resposta = await async_client.patch(
+        f"/estoque/{sku}",
+        json={"quantidade": -10},  # quantidade negativa
+        headers=header_seller_id
+    )
+    assert resposta.status_code == 422
+
+@pytest.mark.asyncio
+async def test_atualizar_estoque_inexistente(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Deve retornar 404 se tentar atualizar estoque inexistente."""
+    sku = "NAOEXISTE"
+    mock_estoque_service.update.return_value = None
+    resposta = await async_client.patch(
+        f"/estoque/{sku}",
+        json={"quantidade": 10},
+        headers=header_seller_id
+    )
+    assert resposta.status_code == 404
+
+# ----------------------------
+# Testes: DELETE /estoque/{sku}
+# ----------------------------
+
+@pytest.mark.asyncio
+async def test_deletar_estoque(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Testa a exclusão de um estoque existente."""
+    sku = "ABC123"
+
+    mock_estoque_service.delete.return_value = True
+
+    resposta = await async_client.delete(
+        f"/estoque/{sku}",
+        headers=header_seller_id
+    )
+
+    assert resposta.status_code == 204
+    mock_estoque_service.delete.assert_called_once_with("seller-123", sku)
+
+@pytest.mark.asyncio
+async def test_deletar_estoque_inexistente(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
+    """Deve retornar 404 se tentar deletar estoque inexistente."""
+    sku = "NAOEXISTE"
+    mock_estoque_service.delete.return_value = None
+
+    resposta = await async_client.delete(f"/estoque/{sku}", headers=header_seller_id)
+    assert resposta.status_code == 404   
