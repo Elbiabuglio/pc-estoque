@@ -56,6 +56,12 @@ Authorization: Bearer token-invalido
 
 ###
 # Consultando com token válido
+GET {{api_estoque}}
+x-seller-id: {{seller_id}}
+Authorization: Bearer {{usertoken.response.body.access_token}}
+
+###
+# Consultando estoque por SKU (GET /estoque/{sku})
 GET {{api_estoque}}/{{sku}}
 x-seller-id: {{seller_id}}
 Authorization: Bearer {{usertoken.response.body.access_token}}
