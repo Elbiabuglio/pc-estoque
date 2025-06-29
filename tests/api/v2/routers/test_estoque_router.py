@@ -1,153 +1,125 @@
 #estoque_router
 import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-from unittest.mock import AsyncMock
-from app.api.v2.routers import estoque_router
-from app.container import Container
+from httpx import AsyncClient, ASGITransport
+import pytest_asyncio
+from dataclasses import dataclass
+from app.api_main import app
+
+
+# ----- Fixtures -----
+
+@pytest_asyncio.fixture
+async def async_client():
+    """Cliente HTTP assíncrono para testes."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://localhost:8000/seller/v2") as client:
+        yield client
+
+@pytest_asyncio.fixture
+async def mock_do_auth(monkeypatch):
+    """Mock da autenticação."""
+    async def fake_do_auth():
+        return True
+
+    monkeypatch.setattr("app.api.v2.routers.estoque_router.do_auth", fake_do_auth)
 
 @pytest.fixture
-def mock_estoque_service():
-    """
-    Fixture que retorna um AsyncMock para o serviço de estoque.
-    """
-    return AsyncMock()
+def headers():
+    """Cabeçalho padrão de seller."""
+    return {"x-seller-id": "1"}
+
+@dataclass
+class Estoque:
+    seller_id: str
+    sku: str
+    quantidade: int
 
 @pytest.fixture
-def app(mock_estoque_service):
-    """
-    Fixture que cria uma instância FastAPI com o container configurado e o router de estoque incluído.
-    """
-    container = Container()
-    container.estoque_service.override(mock_estoque_service)
-
-    app = FastAPI()
-    app.container = container
-    app.include_router(estoque_router.router)
-
-    container.wire(modules=[estoque_router])
-
-    return app
-
-@pytest.fixture
-def client(app):
-    """
-    Fixture que cria um TestClient para realizar requisições HTTP à aplicação FastAPI.
-    """
-    return TestClient(app)
-
-def test_get_estoque(client, mock_estoque_service):
-    """
-    Testa a rota GET /estoque para listar itens em estoque filtrados pelo seller_id.
-    """
-    mock_estoque_service.list.return_value = [
-        {"sku": "ABC123", "quantidade": 5}
+def test_estoques():
+    """Lista de estoques mockados."""
+    return [
+        Estoque(seller_id="1", sku="ABC123", quantidade=10),
+        Estoque(seller_id="2", sku="DEF456", quantidade=20),
+        Estoque(seller_id="3", sku="GHI789", quantidade=30),
     ]
 
-    headers = {"x-seller-id": "12345"}
-    response = client.get("/estoque", headers=headers)
 
-    assert response.status_code == 200
-    json_data = response.json()
+# ----- Testes -----
 
-    assert "results" in json_data
-    assert isinstance(json_data["results"], list)
+@pytest.mark.usefixtures("mock_do_auth", "async_client")
+class TestEstoqueRouterV2:
 
-    result_item = json_data["results"][0]
-    assert result_item["sku"] == "ABC123"
-    assert result_item["quantidade"] == 5
+    @pytest.mark.asyncio
+    async def test_listar_estoques(self, async_client: AsyncClient, headers):
+        """Deve retornar lista de estoques com status 200."""
+        resposta = await async_client.get("/estoque", headers=headers)
+        assert resposta.status_code == 200
+        assert "results" in resposta.json()
 
-    mock_estoque_service.list.assert_awaited_once()
+    @pytest.mark.asyncio
+    async def test_buscar_estoque_por_sku(self, async_client: AsyncClient, test_estoques):
+        """Deve retornar estoque por SKU com status 200."""
+        estoque = test_estoques[0]
+        resposta = await async_client.get(
+            f"/estoque/{estoque.sku}",
+            headers={"x-seller-id": estoque.seller_id}
+        )
+        assert resposta.status_code == 200
+        assert resposta.json()["seller_id"] == estoque.seller_id
+        assert resposta.json()["sku"] == estoque.sku
 
-    called_args = mock_estoque_service.list.call_args.kwargs
-    assert called_args["filters"]["seller_id"] == "12345"
+    @pytest.mark.asyncio
+    async def test_criar_estoque(self, async_client: AsyncClient):
+        """Deve criar um novo estoque com status 201."""
+        novo_estoque = {"seller_id": "3", "sku": "C", "quantidade": 100}
+        resposta = await async_client.post(
+            "/estoque",
+            json=novo_estoque,
+            headers={"x-seller-id": "3"}
+        )
+        assert resposta.status_code == 201
+        assert resposta.json()["seller_id"] == "3"
+        assert resposta.json()["sku"] == "C"
 
-def test_get_estoque_by_sku(client, mock_estoque_service):
-    """
-    Testa a rota GET /estoque/{sku} para buscar um item específico pelo SKU e seller_id.
-    """
-    mock_estoque_service.get_by_seller_id_and_sku.return_value = {
-        "sku": "ABC123",
-        "quantidade": 5
-    }
+    @pytest.mark.asyncio
+    async def test_atualizar_estoque(self, async_client: AsyncClient, test_estoques):
+        """Deve atualizar estoque com PUT e retornar status 200."""
+        estoque = test_estoques[0]
+        update = {"quantidade": 50}
+        resposta = await async_client.put(
+            f"/estoque/{estoque.sku}",
+            json=update,
+            headers={"x-seller-id": estoque.seller_id}
+        )
+        assert resposta.status_code == 200
+        assert resposta.json()["quantidade"] == 50
 
-    headers = {"x-seller-id": "12345"}
-    response = client.get("/estoque/ABC123", headers=headers)
+    @pytest.mark.asyncio
+    async def test_patch_estoque(self, async_client: AsyncClient, test_estoques):
+        """Deve atualizar parcialmente o estoque com PATCH."""
+        estoque = test_estoques[0]
+        patch = {"quantidade": 75}
+        resposta = await async_client.patch(
+            f"/estoque/{estoque.sku}",
+            json=patch,
+            headers={"x-seller-id": estoque.seller_id}
+        )
+        assert resposta.status_code == 200
+        assert resposta.json()["quantidade"] == 75
 
-    assert response.status_code == 200
-    json_data = response.json()
+    @pytest.mark.asyncio
+    async def test_deletar_estoque(self, async_client: AsyncClient, test_estoques):
+        """Deve deletar o estoque e confirmar exclusão."""
+        estoque = test_estoques[0]
+        resposta = await async_client.delete(
+            f"/estoque/{estoque.sku}",
+            headers={"x-seller-id": estoque.seller_id}
+        )
+        assert resposta.status_code == 204
 
-    assert json_data["sku"] == "ABC123"
-    assert json_data["quantidade"] == 5
-
-    mock_estoque_service.get_by_seller_id_and_sku.assert_awaited_once_with("12345", "ABC123")
-
-def test_create_estoque(client, mock_estoque_service):
-    """
-    Testa a rota POST /estoque para criar um novo item de estoque com dados enviados.
-    """
-    mock_estoque_service.create.return_value = {
-        "sku": "ABC123",
-        "quantidade": 10
-    }
-
-    headers = {"x-seller-id": "12345"}
-    payload = {
-        "sku": "ABC123",
-        "quantidade": 10
-    }
-
-    response = client.post("/estoque", json=payload, headers=headers)
-
-    assert response.status_code == 201
-    json_data = response.json()
-
-    assert json_data["sku"] == "ABC123"
-    assert json_data["quantidade"] == 10
-
-    called_args = mock_estoque_service.create.call_args.args[0]
-    # Verifica se o argumento é um objeto com atributos ou um dict
-    if hasattr(called_args, "sku"):
-        assert called_args.sku == "ABC123"
-        assert called_args.quantidade == 10
-        assert getattr(called_args, "seller_id", None) == "12345"
-    else:
-        assert called_args["sku"] == "ABC123"
-        assert called_args["quantidade"] == 10
-        assert called_args["seller_id"] == "12345"
-
-def test_update_estoque_by_sku(client, mock_estoque_service):
-    """
-    Testa a rota PATCH /estoque/{sku} para atualizar a quantidade de um item específico.
-    """
-    mock_estoque_service.update.return_value = {
-        "sku": "ABC123",
-        "quantidade": 20
-    }
-
-    headers = {"x-seller-id": "12345"}
-    payload = {
-        "quantidade": 20
-    }
-
-    response = client.patch("/estoque/ABC123", json=payload, headers=headers)
-
-    assert response.status_code == 200
-    json_data = response.json()
-    assert json_data["sku"] == "ABC123"
-    assert json_data["quantidade"] == 20
-
-    mock_estoque_service.update.assert_awaited_once_with("12345", "ABC123", 20)
-
-def test_delete_estoque_by_sku(client, mock_estoque_service):
-    """
-    Testa a rota DELETE /estoque/{sku} para remover um item específico do estoque.
-    """
-    mock_estoque_service.delete.return_value = None  # DELETE normalmente não retorna conteúdo
-
-    headers = {"x-seller-id": "12345"}
-
-    response = client.delete("/estoque/ABC123", headers=headers)
-
-    assert response.status_code == 204
-    mock_estoque_service.delete.assert_awaited_once_with("12345", "ABC123")
+        # Verificar se o recurso foi realmente excluído
+        resposta_get = await async_client.get(
+            f"/estoque/{estoque.sku}",
+            headers={"x-seller-id": estoque.seller_id}
+        )
+        assert resposta_get.status_code == 404
