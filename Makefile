@@ -74,8 +74,7 @@ run-dev:
 	@ENV=$(ENV) $(INIT) --reload
 
 test:
-	PYTHONPATH=. pytest
-
+	set ENV=test && set PYTHONPATH=. && pytest
 
 # Realizar a migração do banco de dados
 migration:
