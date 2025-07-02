@@ -79,7 +79,6 @@ test:
 # Realizar a migração do banco de dados
 migration:
 	alembic upgrade head
-	python devtools/scripts/carregar_estoque_inicial.py
 
 # Testar fazendo a cobertura do código
 coverage:

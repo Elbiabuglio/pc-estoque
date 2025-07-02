@@ -115,7 +115,6 @@ cd pc-estoque
 
     # No Windows
     alembic upgrade head
-    python devtools/scripts/carregar_estoque_inicial.py
     ```
 
 ### **Executando a Aplicação**
