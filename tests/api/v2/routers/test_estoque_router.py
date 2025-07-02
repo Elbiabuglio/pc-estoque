@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 import pytest
 from unittest.mock import AsyncMock
 from httpx import ASGITransport, AsyncClient
@@ -54,7 +54,7 @@ def now():
 @pytest.mark.asyncio
 async def test_listar_estoques(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
     """Testa a listagem de estoques."""
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     mock_estoque_service.list.return_value = [
         Estoque(
             sku="ABC123",
@@ -102,7 +102,7 @@ async def test_listar_estoques_sem_header(async_client):
 @pytest.mark.asyncio
 async def test_listar_estoques_com_quantity(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
     """Testa a listagem de estoques com filtro de quantidade."""
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     mock_estoque_service.list.return_value = [
         Estoque(
             sku="ABC123",
@@ -130,7 +130,7 @@ async def test_listar_estoques_com_quantity(async_client, mock_estoque_service, 
 async def test_buscar_estoque_por_sku(async_client, mock_estoque_service, mock_do_auth, header_seller_id):
     """Testa a busca de estoque por SKU."""
     sku = "ABC123"
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     mock_estoque_service.get_by_seller_id_and_sku.return_value = Estoque(
         sku=sku,
         quantidade=10,
@@ -184,7 +184,7 @@ async def test_criar_estoque(async_client, mock_estoque_service, mock_do_auth, h
         "sku": "ABC123",
         "quantidade": 15
     }
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     mock_estoque_service.create.return_value = Estoque(
         sku=payload["sku"],
         quantidade=payload["quantidade"],
@@ -221,7 +221,7 @@ async def test_atualizar_estoque(async_client, mock_estoque_service, mock_do_aut
     """Testa a atualização de um estoque existente."""
     sku = "ABC123"
     nova_quantidade = 25
-    now = datetime.utcnow()
+    now = datetime.now(UTC)
     mock_estoque_service.update.return_value = Estoque(
         sku=sku,
         quantidade=nova_quantidade,
