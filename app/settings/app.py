@@ -21,6 +21,9 @@ class AppSettings(BaseSettings):
 
     app_openid_wellknown: HttpUrl = Field(..., title="URL well-known do Keycloak")
 
+    pc_logging_level: str = Field("DEBUG", description="Nível do logging")
+    pc_logging_env: str = Field("prod", description="Ambiente do logging (prod ou dev ou test)")
+
 settings = AppSettings()
 
 

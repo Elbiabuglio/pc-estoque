@@ -6,11 +6,16 @@ from fastapi import FastAPI, Request
 from app.container import Container
 from app.settings import api_settings
 
+from pclogging import LoggingBuilder
+
 ENV = os.getenv("ENV", "production")
 is_dev = ENV == "dev"
 
 dotenv.load_dotenv(override=is_dev)
 
+
+# Inicia a biblioteca de logging
+LoggingBuilder.init()
 
 def init() -> FastAPI:
     from app.api.api_application import create_app

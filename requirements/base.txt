@@ -13,3 +13,5 @@ cryptography==45.0.4
 pytest 
 pytest-asyncio
 pytest-cov
+
+git+https://github.com/projeto-carreira-luizalabs-2025/pc-logging/tree/v0.1.0
