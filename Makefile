@@ -79,30 +79,16 @@ test:
 # Realizar a migração do banco de dados
 migration:
 	alembic upgrade head
+	python devtools/scripts/carregar_estoque_inicial.py
 
 # Testar fazendo a cobertura do código
 coverage:
 	pytest --cov=${APP_DIR} --cov-report=term-missing --cov-report=xml ${ROOT_TESTS_DIR} --cov-fail-under=80 --durations=5
 
-# Subir o docker para os testes com o Keycloak
-docker-tests-up:
-	docker-compose up -d --build
-	docker-compose -f docker-compose-keycloak.yml up -d --build
-	docker-compose exec app alembic upgrade head
-	docker-compose exec app python devtools/scripts/carregar_estoque_inicial.py
-
-# Descer e remover o docker dos testes com o Keycloak
-docker-tests-down:
-	docker-compose down -d
-	docker-compose -f docker-compose-keycloak.yml down -d
-
 # Subir a aplicação com o Keycloak
 docker-up:
 	docker-compose up -d --build
 	docker-compose -f docker-compose-keycloak.yml up -d --build
-	docker-compose exec app alembic upgrade head
-	docker-compose exec app python devtools/scripts/carregar_estoque_inicial.py
-
 
 # Descer e remover a aplicação com o Keycloak
 docker-down:
