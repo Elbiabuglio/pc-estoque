@@ -41,19 +41,14 @@ async def test__get_request_body_success(valid_json_request):
 
 
 @pytest.mark.asyncio
-async def test__get_request_body_invalid_json(invalid_json_request, monkeypatch):
+async def test__get_request_body_invalid_json(invalid_json_request, caplog):
     """Deve retornar None e capturar erro de JSON inválido."""
-    printed = []
+    with caplog.at_level("ERROR"):
+        result = await error_handlers._get_request_body(invalid_json_request)
 
-    def fake_print(msg, ex):
-        printed.append((msg.strip(), str(ex)))
-
-    monkeypatch.setattr("builtins.print", fake_print)
-
-    result = await error_handlers._get_request_body(invalid_json_request)
     assert result is None
-    assert printed
-    assert printed[0][0].startswith(":-(")
+    # Verifica se a mensagem de erro correta foi logada
+    assert any("Failed to parse request body" in record.message for record in caplog.records)
 
 
 @pytest.mark.asyncio

@@ -25,57 +25,52 @@ Este projeto foi construído utilizando as seguintes tecnologias principais:
 
 ## 🚀 Como Rodar o Projeto
 
-Existem duas maneiras principais de executar este projeto: **localmente** (ideal para desenvolvimento e depuração) ou via **Docker** (simula um ambiente de produção).
-
-### 1. Configuração e Execução Local
-
-Siga os passos abaixo para configurar o ambiente de desenvolvimento na sua máquina.
-
-#### **Pré-requisitos**
+### **Pré-requisitos**
 
 - Python 3.12
-- Um servidor de banco de dados PostgreSQL em execução.
+- Docker
+- Docker Compose
 
-#### **Clonando o Repositório**
+### **Clonando o Repositório**
 
 ```bash
 git clone https://github.com/projeto-carreira-luizalabs-2025/pc-estoque.git
 cd pc-estoque
 ```
 
-#### **Configuração do Ambiente (Linux 🐧)**
+### **Configuração do Ambiente**
 
 1.  **Crie o ambiente virtual:**
+
     ```bash
+    # No Linux
     make build-venv
-    ```
-2.  **Ative o ambiente virtual:**
-    ```bash
-    source ./venv/bin/activate
-    ```
-3.  **Instale as dependências:**
-    ```bash
-    make requirements-dev
-    ```
 
-#### **Configuração do Ambiente (Windows 🪟)**
-
-1.  **Crie o ambiente virtual:**
-    ```bash
+    # No Windows
     python -m venv venv
     ```
+
 2.  **Ative o ambiente virtual:**
+
     ```bash
+    #Linux
+    source venv/bin/activate
+
+    #Windows
     .\venv\Scripts\activate
     ```
+
 3.  **Instale as dependências:**
+
     ```bash
+    # No Linux
+    make requirements-dev
+
+    # No Windows
     pip install -r requirements/develop.txt
     ```
 
-#### **Configurando Variáveis de Ambiente e Banco de Dados Para o Ambiente de Desenvolvimento**
-
-1.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
+4.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
 
     ```bash
     # No Linux
@@ -85,84 +80,9 @@ cd pc-estoque
     copy devtools\dotenv.dev .env
     ```
 
-2.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
+### **Configurando Banco de Dados**
 
-3.  **Aplique as migrações do banco de dados:** Para criar as tabelas necessárias, execute o Alembic.
-
-    ```bash
-    # No Linux
-    make migration
-
-    # No Windows
-    alembic upgrade head
-    ```
-
-#### **Configurando Variáveis de Ambiente e Banco de Dados Para o Ambiente de Teste**
-
-1.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
-
-    ```bash
-    # No Linux
-    make load-test-env
-
-    # No Windows
-    copy devtools\dotenv.test .env
-    ```
-
-2.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
-
-3.  **Aplique as migrações do banco de dados:** Para criar as tabelas necessárias, execute o Alembic.
-
-    ```bash
-    # No Linux
-    make migration
-
-    # No Windows
-    alembic upgrade head
-    ```
-
-#### **Executando a Aplicação**
-
-Com o ambiente virtual ativado, inicie o servidor da API:
-
-```bash
-make run-dev
-```
-
-Ou, manualmente:
-
-```bash
-uvicorn app.api_main:app --reload
-```
-
-### 2. Comfiguração e Execução com Docker
-
-obs: O docker-compose esta configurado para subir a Api, o banco de dados e o Keycloak.
-
-O Docker simplifica todo o processo, gerindo a aplicação, a base de dados e o Keycloak em contentores isolados. Siga os passos abaixo:
-
-#### **Pré-requisitos**
-
-- Docker
-- Docker Compose
-
-#### **Passo 1: Preparar Variáveis de Ambiente**
-
-Antes de iniciar, é necessário criar um ficheiro de configuração `.env`. Pode copiar o ficheiro de exemplo fornecido.
-
-- **No Linux/macOS:**
-  ```bash
-  make load-dev-env
-  ```
-- **No Windows:**
-  ```bash
-  copy devtools\dotenv.dev .env
-  ```
-  _(Este ficheiro já vem pré-configurado para o ambiente Docker, pelo que não são necessários ajustes.)_
-
-#### **Passo 2: Iniciar a Aplicação (App + Banco de Dados + Keycloak)**
-
-Este comando irá iniciar os contêineres da aplicação e do banco de dados PostgreSQL e o Keycloak, alem de realizar a migração do banco de dados e carregar o estoque inicial.
+1. **Subindo o Container do PostgreSQL e Keycloak:** Este comando irá iniciar os contêineres da aplicação e do banco de dados PostgreSQL e o Keycloak, alem de realizar a migração do banco de dados e carregar o estoque inicial.
 
 ```bash
   # No Linux
@@ -175,35 +95,90 @@ Este comando irá iniciar os contêineres da aplicação e do banco de dados Pos
 
 ```
 
-Aguarde alguns instantes para que os serviços estejam operacionais.
+**OBS: Comandos para descer os contêineres**
 
-#### **Passo 4 (Opcional): Iniciar Serviços Adicionais**
+```bash
+  # No Linux
+  make docker-down
 
-Se você precisar dos outros serviços, como o **SonarQube**, inicie-os com seus respectivos arquivos do Compose.
+  # No Windows
+  docker-compose -f docker-compose-keycloak.yml -f docker-compose.yml down
+```
 
-- **Para o SonarQube:**
-  ```bash
-  docker-compose -f docker-compose-sonar.yml up -d
-  ```
+3.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
 
-#### **Comandos Úteis do Docker**
+4.  **Aplique as migrações do banco de dados:** Para criar as tabelas necessárias, execute o Alembic.
 
-- **Para parar a aplicação principal (app e db):**
-  ```bash
-  make  down
-  ```
-- **Para parar um serviço adicional (ex: sonar):**
-  ```bash
-  docker-compose -f docker-compose-sonar.yml down
-  ```
+    ```bash
+    # No Linux
+    make migration
+
+    # No Windows
+    alembic upgrade head
+    ```
+
+### **Executando a Aplicação**
+
+Com o ambiente virtual ativado, inicie o servidor da API:
+
+```bash
+# No Linux
+make run-dev
+
+# No Windows
+uvicorn app.api_main:app --reload
+```
 
 ## 🧪 Testes e Qualidade de Código
 
 O projeto está configurado com um conjunto de ferramentas para garantir a qualidade e a consistência do código.
 
-### **Configurando Variáveis de Ambiente e Banco de Dados Para o Ambiente de Teste**
+### **Pré-requisitos**
 
-1.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
+- Python 3.12
+- Docker
+- Docker Compose
+
+### **Clonando o Repositório**
+
+```bash
+git clone https://github.com/projeto-carreira-luizalabs-2025/pc-estoque.git
+cd pc-estoque
+```
+
+### **Configuração do Ambiente**
+
+1.  **Crie o ambiente virtual:**
+
+    ```bash
+    # No Linux
+    make build-venv
+
+    # No Windows
+    python -m venv venv
+    ```
+
+2.  **Ative o ambiente virtual:**
+
+    ```bash
+    #Linux
+    source venv/bin/activate
+
+    #Windows
+    .\venv\Scripts\activate
+    ```
+
+3.  **Instale as dependências:**
+
+    ```bash
+    # No Linux
+    make requirements-dev
+
+    # No Windows
+    pip install -r requirements/develop.txt
+    ```
+
+4.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
 
     ```bash
     # No Linux
@@ -213,17 +188,7 @@ O projeto está configurado com um conjunto de ferramentas para garantir a quali
     copy devtools\dotenv.test .env
     ```
 
-2.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
-
-3.  **Aplique as migrações do banco de dados:** Para criar as tabelas necessárias, execute o Alembic.
-
-    ```bash
-    # No Linux
-    make migration
-
-    # No Windows
-    alembic upgrade head
-    ```
+5.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
 
 ### **Executando os Testes**
 

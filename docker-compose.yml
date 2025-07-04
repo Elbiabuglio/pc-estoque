@@ -11,32 +11,8 @@ services:
     #volumes:
     #  - db_data:/var/lib/postgresql/data
     restart: unless-stopped
-
-  app:
-    build:
-      context: .
-      dockerfile: devtools/Dockerfile
-    container_name: pc-estoque
-    ports:
-      - "8000:8000"
-    environment:
-      - ENV=dev
-      - APP_DB_URL=postgresql+asyncpg://admin:admin@db:5432/estoque_db
-      - APP_OPENID_WELLKNOWN=http://host.docker.internal:8080/realms/marketplace/.well-known/openid-configuration
-    env_file:
-      - devtools/dotenv.dev
-    depends_on:
-      - db
-    working_dir: /pc-estoque
-    command:
-      ["uvicorn", "app.api_main:app", "--host", "0.0.0.0", "--port", "8000"]
-    restart: unless-stopped
 # Comando para rodar o compose
 #docker-compose up -d --build
 
-# Comando para rodar a aplicação
-#docker-compose up -d --build app
-
 # Comando para parar a aplicação
 #docker-compose down
-
