@@ -14,4 +14,4 @@ pytest
 pytest-asyncio
 pytest-cov
 
-git+https://github.com/projeto-carreira-luizalabs-2025/pc-logging.git@v0.1.0#egg=pclogging
+git+ssh://git@github.com/projeto-carreira-luizalabs-2025/pc-logging.git@v0.1.0#egg=pclogging
