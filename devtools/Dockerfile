@@ -7,6 +7,9 @@ WORKDIR /app
 COPY requirements.txt .
 COPY requirements ./requirements/
 
+RUN apt-get update && apt-get install -y git
+
+
 # Cria o virtualenv e instala os pacotes diretamente nele
 RUN python -m venv venv && \
     ./venv/bin/pip install --upgrade pip && \
