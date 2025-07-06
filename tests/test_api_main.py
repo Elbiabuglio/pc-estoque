@@ -49,7 +49,7 @@ def test_init_creates_app_and_wires_modules(mock_container, mock_create_app, moc
     mock_container.config.from_pydantic.assert_called_once_with(mock_api_settings)
     # Verifica se a função create_app foi chamada para criar o app
     mock_create_app.assert_called_once()
-    # Verifica se o container fez o wiring dos 3 módulos esperados
-    assert mock_container.wire.call_count == 3
+    # Verifica se o container fez o wiring dos 2 módulos esperados
+    assert mock_container.wire.call_count == 2
     # Verifica se o app retornado é o mock retornado por create_app
     assert app == mock_create_app.return_value
