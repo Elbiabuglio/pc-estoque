@@ -56,8 +56,6 @@ def upgrade() -> None:
             {'seller_id': 'seller_a', 'sku': 'sku_001', 'quantidade': 100, 'created_at': now, 'updated_at': now},
             {'seller_id': 'seller_a', 'sku': 'sku_002', 'quantidade': 50, 'created_at': now, 'updated_at': now},
             {'seller_id': 'seller_a', 'sku': 'sku_003', 'quantidade': 200, 'created_at': now, 'updated_at': now},
-            {'seller_id': 'seller_a', 'sku': 'sku_001', 'quantidade': 75, 'created_at': now, 'updated_at': now},
-            {'seller_id': 'seller_a', 'sku': 'sku_002', 'quantidade': 150, 'created_at': now, 'updated_at': now},
             {'seller_id': 'seller_b', 'sku': 'sku_003', 'quantidade': 50, 'created_at': now, 'updated_at': now},
             {'seller_id': 'seller_b', 'sku': 'sku_004', 'quantidade': 300, 'created_at': now, 'updated_at': now},
             {'seller_id': 'seller_b', 'sku': 'sku_005', 'quantidade': 120, 'created_at': now, 'updated_at': now},
