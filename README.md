@@ -8,7 +8,7 @@ O PC-Estoque é um sistema de gerenciamento de estoque desenvolvido para oferece
 
 - Elbia Simone Buglio
 - Laura Gabriely
-- Victor Teixeira
+- Felipe Andrade
 
 ## 💻 Tecnologias Utilizadas
 
