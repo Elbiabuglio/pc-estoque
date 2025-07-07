@@ -3,6 +3,8 @@ from dependency_injector import containers, providers
 from app.repositories import EstoqueRepository
 from app.services import HealthCheckService, EstoqueServices
 from app.settings import AppSettings
+from app.services.historico_estoque_service import HistoricoEstoqueService 
+from app.repositories.historico_estoque_repository import HistoricoEstoqueRepository 
 
 from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 
@@ -27,10 +29,20 @@ class Container(containers.DeclarativeContainer):
 
     # Repositórios
     estoque_repository = providers.Singleton(EstoqueRepository, sql_client=sql_client)
+    historico_estoque_repository = providers.Singleton(HistoricoEstoqueRepository, sql_client=sql_client) 
+
 
     # Serviços
     health_check_service = providers.Singleton(
         HealthCheckService, checkers=config.health_check_checkers, settings=settings
     )
-
-    estoque_service = providers.Singleton(EstoqueServices, repository=estoque_repository, redis_adapter=redis_adapter)
+    estoque_service = providers.Singleton(
+        EstoqueServices,
+        repository=estoque_repository,
+        redis_adapter=redis_adapter,
+        historico_repository=historico_estoque_repository
+    )
+    historico_estoque_service = providers.Singleton(
+        HistoricoEstoqueService,
+        historico_repository=historico_estoque_repository
+    )

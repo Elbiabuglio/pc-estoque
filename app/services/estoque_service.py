@@ -1,7 +1,9 @@
 from app.api.common.schemas.pagination import Paginator
 from app.common.datetime import utcnow
 from app.common.exceptions.estoque_exceptions import EstoqueBadRequestException, EstoqueNotFoundException
+from app.models.historico_estoque_model import HistoricoEstoque, TipoMovimentacaoEnum
 from ..models.estoque_model import Estoque
+from app.repositories.historico_estoque_repository import HistoricoEstoqueRepository
 from .base import CrudService
 from ..repositories.estoque_repository import EstoqueRepository
 from app.integrations.kv_db.redis_asyncio_adapter import RedisAsyncioAdapter
@@ -15,10 +17,30 @@ class EstoqueServices(CrudService[Estoque, str]):
 
     repository: EstoqueRepository
     redis_adapter: RedisAsyncioAdapter
-    
-    def __init__(self, repository: EstoqueRepository, redis_adapter: RedisAsyncioAdapter):
+    historico_repository: HistoricoEstoqueRepository
+
+    def __init__(self, repository: EstoqueRepository, redis_adapter: RedisAsyncioAdapter, historico_repository: HistoricoEstoqueRepository):
         super().__init__(repository)
         self.redis_adapter = redis_adapter
+        self.historico_repository = historico_repository
+
+
+    async def _registrar_historico(
+        self,
+        estoque: Estoque,
+        tipo: TipoMovimentacaoEnum,
+        quantidade_anterior: int = 0
+    ):
+        """Método auxiliar para criar e salvar um registro de histórico."""
+        historico_entry = HistoricoEstoque(
+            seller_id=estoque.seller_id,
+            sku=estoque.sku,
+            quantidade_anterior=quantidade_anterior,
+            quantidade_nova=estoque.quantidade,
+            tipo_movimentacao=tipo,
+            movimentado_em=utcnow()
+        )
+        await self.historico_repository.create(historico_entry)
 
     async def get_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Estoque:
         """
@@ -59,6 +81,13 @@ class EstoqueServices(CrudService[Estoque, str]):
 
         estoque = Estoque(**estoque.model_dump())
         created = await super().create(estoque)
+
+        await self._registrar_historico(
+            estoque=created,
+            tipo=TipoMovimentacaoEnum.CRIACAO,
+            quantidade_anterior=0
+        )
+
         logger.debug(f"Estoque criado com sucesso: {created}")
         return created
 
@@ -71,6 +100,14 @@ class EstoqueServices(CrudService[Estoque, str]):
         logger.info(f"Atualizando estoque seller_id={seller_id}, sku={sku} para quantidade={quantidade}")
         estoque_found = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
         self._raise_not_found(seller_id, sku, estoque_found is None)
+
+        estoque_encontrado = Estoque.model_validate(estoque_found)
+        quantidade_anterior = estoque_encontrado.quantidade
+
+        estoque_encontrado.quantidade = quantidade
+        self._validate_positive_estoque(estoque_encontrado)
+
+        updated_data = estoque_encontrado.model_dump()
         
         temp_estoque = Estoque(**(dict(estoque_found) if isinstance(estoque_found, dict) else estoque_found.model_dump()))
         temp_estoque.quantidade = quantidade
@@ -81,6 +118,13 @@ class EstoqueServices(CrudService[Estoque, str]):
         
         updated_entity = Estoque(**updated_data)
         updated = await self.repository.update_by_seller_id_and_sku(seller_id, sku, updated_entity)
+
+        await self._registrar_historico(
+            estoque=updated,
+            tipo=TipoMovimentacaoEnum.ATUALIZACAO,
+            quantidade_anterior=quantidade_anterior
+        )
+
         logger.debug(f"Estoque atualizado: {updated}")
 
         # remove a cache do estoque atualizado
@@ -105,6 +149,16 @@ class EstoqueServices(CrudService[Estoque, str]):
             )
         else:
             logger.debug(f"Estoque deletado seller_id={seller_id}, sku={sku}")
+
+            estoque_deletado = Estoque.model_validate(estoque_found_dict)
+            quantidade_anterior = estoque_deletado.quantidade
+            estoque_deletado.quantidade = 0 # A quantidade final é 0
+
+            await self._registrar_historico(
+                estoque=estoque_deletado,
+                tipo=TipoMovimentacaoEnum.EXCLUSAO,
+                quantidade_anterior=quantidade_anterior
+            )
 
             # remove a cache do estoque atualizado
             cache_key = f"estoque:{seller_id}:{sku}"
