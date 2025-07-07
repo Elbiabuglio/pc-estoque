@@ -150,7 +150,7 @@ class EstoqueServices(CrudService[Estoque, str]):
         else:
             logger.debug(f"Estoque deletado seller_id={seller_id}, sku={sku}")
 
-            estoque_deletado = Estoque.model_validate(estoque_found_dict)
+            estoque_deletado = Estoque.model_validate(estoque_found)
             quantidade_anterior = estoque_deletado.quantidade
             estoque_deletado.quantidade = 0 # A quantidade final é 0
 
