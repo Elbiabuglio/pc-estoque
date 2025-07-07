@@ -12,7 +12,7 @@ KC_PASSWORD = "senha123"
 API_URL = "http://localhost:8000/seller/v2/estoque/sample-sku"
 SELLER_ID = "luizalabs"
 REDIS_URL = "redis://localhost:6379/0"
-CACHE_KEY = f"price:{SELLER_ID}:sample-sku"
+CACHE_KEY = f"estoque:{SELLER_ID}:sample-sku"
 
 
 async def get_token():

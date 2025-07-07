@@ -27,7 +27,7 @@ class EstoqueServices(CrudService[Estoque, str]):
         Caso contrário, busca no banco de dados e atualiza a cache.
         """
         logger.debug(f"Buscando estoque na cache para seller_id={seller_id}, sku={sku}")
-        cache_key = f"price:{seller_id}:{sku}"
+        cache_key = f"estoque:{seller_id}:{sku}"
         cached_estoque = await self.search_estoque_in_cache(seller_id, sku, cache_key)
         if cached_estoque is not None:
             logger.debug(f"Estoque encontrado na cache: {cached_estoque}")
@@ -84,7 +84,7 @@ class EstoqueServices(CrudService[Estoque, str]):
         logger.debug(f"Estoque atualizado: {updated}")
 
         # remove a cache do estoque atualizado
-        cache_key = f"price:{seller_id}:{sku}"
+        cache_key = f"estoque:{seller_id}:{sku}"
         await self.redis_adapter.delete(cache_key)
 
         return updated
@@ -107,7 +107,7 @@ class EstoqueServices(CrudService[Estoque, str]):
             logger.debug(f"Estoque deletado seller_id={seller_id}, sku={sku}")
 
             # remove a cache do estoque atualizado
-            cache_key = f"price:{seller_id}:{sku}"
+            cache_key = f"estoque:{seller_id}:{sku}"
             await self.redis_adapter.delete(cache_key)
 
             return True 
