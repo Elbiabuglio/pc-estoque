@@ -4,6 +4,7 @@ from app.common.exceptions.estoque_exceptions import EstoqueBadRequestException,
 from ..models.estoque_model import Estoque
 from .base import CrudService
 from ..repositories.estoque_repository import EstoqueRepository
+from app.integrations.kv_db.redis_asyncio_adapter import RedisAsyncioAdapter
 
 from pclogging import LoggingBuilder
 
@@ -13,19 +14,40 @@ logger = LoggingBuilder.get_logger(__name__)
 class EstoqueServices(CrudService[Estoque, str]):
 
     repository: EstoqueRepository
+    redis_adapter: RedisAsyncioAdapter
     
-    def __init__(self, repository: EstoqueRepository):
+    def __init__(self, repository: EstoqueRepository, redis_adapter: RedisAsyncioAdapter):
         super().__init__(repository)
+        self.redis_adapter = redis_adapter
 
     async def get_by_seller_id_and_sku(self, seller_id: str, sku: str) -> Estoque:
         """
         Busca um estoque pelo seller_id e SKU.
+        Caso o estoque esteja na cache Redis, retorna o valor da cache diretamente.
+        Caso contrário, busca no banco de dados e atualiza a cache.
         """
-        logger.debug(f"Buscando estoque para seller_id={seller_id}, sku={sku}")
-        estoque = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
+        logger.debug(f"Buscando estoque na cache para seller_id={seller_id}, sku={sku}")
+        cache_key = f"price:{seller_id}:{sku}"
+        cached_estoque = await self.search_estoque_in_cache(seller_id, sku, cache_key)
+        if cached_estoque is not None:
+            logger.debug(f"Estoque encontrado na cache: {cached_estoque}")
+            return cached_estoque
 
-        self._raise_not_found(seller_id, sku, estoque is None)
-        return Estoque.model_validate(estoque)
+        logger.debug(f"Buscando estoque no banco de dados para seller_id={seller_id}, sku={sku}")
+        estoque_data = await self.repository.find_by_seller_id_and_sku(seller_id, sku)
+
+        self._raise_not_found(seller_id, sku, estoque_data is None)
+
+        estoque_model = Estoque.model_validate(estoque_data)
+
+        await self.redis_adapter.set_json(
+            cache_key,
+            estoque_model.model_dump(mode="json"),
+            expires_in_seconds=300,
+        )
+        logger.debug(f"Estoque atualizado na cache: {estoque_model}")
+
+        return estoque_model
 
     async def create(self, estoque: Estoque) -> Estoque:
         """
@@ -60,6 +82,11 @@ class EstoqueServices(CrudService[Estoque, str]):
         updated_entity = Estoque(**updated_data)
         updated = await self.repository.update_by_seller_id_and_sku(seller_id, sku, updated_entity)
         logger.debug(f"Estoque atualizado: {updated}")
+
+        # remove a cache do estoque atualizado
+        cache_key = f"price:{seller_id}:{sku}"
+        await self.redis_adapter.delete(cache_key)
+
         return updated
 
     async def delete(self, seller_id: str, sku: str):
@@ -78,6 +105,11 @@ class EstoqueServices(CrudService[Estoque, str]):
             )
         else:
             logger.debug(f"Estoque deletado seller_id={seller_id}, sku={sku}")
+
+            # remove a cache do estoque atualizado
+            cache_key = f"price:{seller_id}:{sku}"
+            await self.redis_adapter.delete(cache_key)
+
             return True 
 
     async def list(self, paginator: Paginator, filters: dict) -> list[Estoque]:
@@ -91,6 +123,17 @@ class EstoqueServices(CrudService[Estoque, str]):
             offset=paginator.offset
         )
         return resultados_filtrados
+
+    async def search_estoque_in_cache(self, seller_id: str, sku: str, cache_key: str) -> dict:
+        """
+        Busca um estoque na cache Redis.
+        """
+        logger.debug(f"Buscando estoque na cache para seller_id={seller_id}, sku={sku}, cache_key={cache_key}")
+        cached_estoque = await self.redis_adapter.get_json(cache_key)
+        
+        if cached_estoque is not None:
+            logger.debug(f"Estoque encontrado na cache: {cached_estoque}")
+            return Estoque.model_validate(cached_estoque)
 
     def _validate_positive_estoque(self, estoque):
         """
