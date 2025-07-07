@@ -74,7 +74,7 @@ run-dev:
 	@ENV=$(ENV) $(INIT) --reload
 
 test:
-    set ENV=test && set PYTHONPATH=. && pytest
+	ENV=test PYTHONPATH=. pytest
 
 # Realizar a migração do banco de dados
 migration:
@@ -82,8 +82,8 @@ migration:
 
 # Testar fazendo a cobertura do código
 coverage:
-    set PYTHONPATH=. && pytest --cov=$(APP_DIR) --cov-report=term-missing --cov-report=xml $(ROOT_TESTS_DIR) --cov-fail-under=90 --durations=5
-	
+	ENV=test PYTHONPATH=. pytest --cov=$(APP_DIR) --cov-report=term-missing --cov-report=xml $(ROOT_TESTS_DIR) --cov-fail-under=90 --durations=5
+
 # Subir a aplicação com o Keycloak
 docker-up:
 	docker-compose -f docker-compose-db.yml -f docker-compose-keycloak.yml -f docker-compose-redis.yml up -d --build
