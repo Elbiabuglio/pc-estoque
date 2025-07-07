@@ -90,7 +90,7 @@ cd pc-estoque
   make docker-up
 
   # No Windows
-  docker-compose -f docker-compose-keycloak.yml -f docker-compose-db.yml up -d
+  docker-compose -f docker-compose-keycloak.yml -f docker-compose-db.yml -f docker-compose-redis.yml up -d
   docker-compose exec app alembic upgrade head
   docker-compose exec app python devtools/scripts/carregar_estoque_inicial.py
 
@@ -103,7 +103,7 @@ cd pc-estoque
   make docker-down
 
   # No Windows
-  docker-compose -f docker-compose-keycloak.yml -f docker-compose-db.yml down
+  docker-compose -f docker-compose-keycloak.yml -f docker-compose-db.yml -f docker-compose-redis.yml down
 ```
 
 3.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.

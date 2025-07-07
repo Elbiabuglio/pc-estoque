@@ -86,8 +86,8 @@ coverage:
 	
 # Subir a aplicação com o Keycloak
 docker-up:
-	docker-compose -f docker-compose-db.yml -f docker-compose-keycloak.yml up -d --build
+	docker-compose -f docker-compose-db.yml -f docker-compose-keycloak.yml -f docker-compose-redis.yml up -d --build
 
 # Descer e remover a aplicação com o Keycloak
 docker-down:
-	docker-compose -f docker-compose-db.yml -f docker-compose-keycloak.yml down
+	docker-compose -f docker-compose-db.yml -f docker-compose-keycloak.yml -f docker-compose-redis.yml down
