@@ -78,6 +78,7 @@ class EstoqueServices(CrudService[Estoque, str]):
             )
         else:
             logger.debug(f"Estoque deletado seller_id={seller_id}, sku={sku}")
+            return True 
 
     async def list(self, paginator: Paginator, filters: dict) -> list[Estoque]:
         """
