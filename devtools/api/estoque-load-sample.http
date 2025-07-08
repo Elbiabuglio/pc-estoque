@@ -106,3 +106,20 @@ Content-Type: application/json
 DELETE {{api_estoque}}/{{sku}}
 x-seller-id: {{seller_id}}
 Authorization: Bearer {{usertoken.response.body.access_token}}
+
+### -----------------------
+# Historico Estoque
+
+@api_historico_estoque={{url}}/seller/v2/historico_estoque
+
+###
+# Consultando histórico de estoque da semana
+GET {{api_historico_estoque}}/semana
+x-seller-id: {{seller_id}}
+Authorization: Bearer {{usertoken.response.body.access_token}}
+
+###
+# Consultando historico de estoque do dia
+GET {{api_historico_estoque}}/dia
+x-seller-id: {{seller_id}}
+Authorization: Bearer {{usertoken.response.body.access_token}}
