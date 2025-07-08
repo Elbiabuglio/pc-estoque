@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from app.api.common.schemas import ResponseEntity, SchemaType
 from app.models.historico_estoque_model import TipoMovimentacaoEnum
