@@ -1,13 +1,11 @@
-import pytest
-from unittest.mock import patch, AsyncMock, MagicMock
-import jwt
-import httpx
+from unittest.mock import AsyncMock, MagicMock, patch
 
-from app.integrations.auth.keycloak_adapter import (
-    KeycloakAdapter,
-    InvalidTokenException,
-    TokenExpiredException,
-)
+import httpx
+import jwt
+import pytest
+
+from app.integrations.auth.keycloak_adapter import InvalidTokenException, KeycloakAdapter, TokenExpiredException
+
 
 @pytest.fixture
 def adapter():

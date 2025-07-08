@@ -1,6 +1,8 @@
 import pytest
-from app.services.health_check.health_service import HealthCheckService
+
 from app.services.health_check.base_health_check import BaseHealthCheck
+from app.services.health_check.health_service import HealthCheckService
+
 
 class DummyChecker(BaseHealthCheck):
     async def check(self):

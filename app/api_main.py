@@ -2,11 +2,10 @@ import os
 
 import dotenv
 from fastapi import FastAPI, Request
+from pclogging import LoggingBuilder
 
 from app.container import Container
 from app.settings import api_settings
-
-from pclogging import LoggingBuilder
 
 ENV = os.getenv("ENV", "production")
 is_dev = ENV == "dev"

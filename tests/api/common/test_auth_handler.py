@@ -1,8 +1,11 @@
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
+
 from app.api.common.auth_handler import do_auth
+from app.common.exceptions import ForbiddenException, UnauthorizedException
 from app.integrations.auth.keycloak_adapter import OAuthException
-from app.common.exceptions import UnauthorizedException, ForbiddenException
+
 
 @pytest.mark.asyncio
 async def test_do_auth_sucesso():

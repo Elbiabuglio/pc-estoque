@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta, timezone
 from typing import List
+
 from app.models.historico_estoque_model import HistoricoEstoque
 from app.repositories.historico_estoque_repository import HistoricoEstoqueRepository
+
 
 class HistoricoEstoqueService:
     def __init__(self, historico_repository: HistoricoEstoqueRepository):

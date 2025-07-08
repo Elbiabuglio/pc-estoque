@@ -1,7 +1,10 @@
 from datetime import datetime
+
 from pydantic import Field
+
 from app.api.common.schemas import ResponseEntity, SchemaType
 from app.models.historico_estoque_model import TipoMovimentacaoEnum
+
 
 class HistoricoEstoqueResponse(ResponseEntity, SchemaType):
     """Schema de resposta para um registro de histórico de estoque."""

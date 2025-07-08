@@ -1,7 +1,8 @@
+from unittest.mock import AsyncMock, MagicMock
+
 import pytest
-from unittest.mock import MagicMock, AsyncMock
-from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer
+from sqlalchemy.orm import declarative_base
 
 from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 

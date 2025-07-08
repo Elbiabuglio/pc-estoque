@@ -1,8 +1,9 @@
 import pytest
 from fastapi import APIRouter
-from app.settings import ApiSettings
-from app.api.api_application import create_app
 from httpx import AsyncClient
+
+from app.api.api_application import create_app
+from app.settings import ApiSettings
 
 
 @pytest.fixture

@@ -1,7 +1,8 @@
-from fastapi.responses import JSONResponse
 import pytest
-from fastapi import FastAPI, Depends, Request
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
+
 from app.api.common.dependencies import get_required_seller_id
 from app.common.exceptions import BadRequestException
 

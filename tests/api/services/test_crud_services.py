@@ -1,7 +1,10 @@
-import pytest
 from unittest.mock import AsyncMock, Mock
-from app.services.base.crud_service import CrudService
+
+import pytest
+
 from app.common.exceptions import NotFoundException
+from app.services.base.crud_service import CrudService
+
 
 class FakeEntity:
     pass

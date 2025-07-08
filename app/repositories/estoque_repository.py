@@ -1,14 +1,16 @@
 from typing import Any, Dict, Optional, TypeVar
 
+from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 from app.models.estoque_model import Estoque
+
 from .base.sqlalchemy_crud_repository import SQLAlchemyCrudRepository
 from .base.sqlalchemy_entity_base import SellerIdSkuPersistableEntityBase
-from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 
 T = TypeVar("T", bound=Estoque)
 B = TypeVar("B", bound=SellerIdSkuPersistableEntityBase)
 
 from sqlalchemy import Column, Integer
+
 
 class EstoqueBase(SellerIdSkuPersistableEntityBase):
     __tablename__ = "pc_estoque"

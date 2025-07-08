@@ -1,10 +1,10 @@
-from typing import Dict, Tuple, List
-from unittest.mock import AsyncMock, Mock, MagicMock
 from datetime import datetime, timezone
+from typing import Dict, List, Tuple
+from unittest.mock import AsyncMock, MagicMock, Mock
 
+from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 from app.models import Estoque
 from app.repositories.estoque_repository import EstoqueRepository
-from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 
 
 class AsyncSessionMock(MagicMock):

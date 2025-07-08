@@ -1,6 +1,9 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+
 from app import api_main
+
 
 # 🔸 Fixture que cria mock do Container
 @pytest.fixture

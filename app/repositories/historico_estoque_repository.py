@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List
+
 from sqlalchemy import Column, DateTime, Integer, String, select
 
 from app.integrations.database.sqlalchemy_client import SQLAlchemyClient

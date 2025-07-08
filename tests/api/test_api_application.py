@@ -1,9 +1,10 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 from app.api.api_application import create_app
-from tests.fixtures.api_application_fixtures import mock_settings, mock_router
+from tests.fixtures.api_application_fixtures import mock_router, mock_settings
 
 
 @patch("app.api.api_application.configure_middlewares")

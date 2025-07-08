@@ -1,14 +1,15 @@
+from pclogging import LoggingBuilder
+
 from app.api.common.schemas.pagination import Paginator
 from app.common.datetime import utcnow
 from app.common.exceptions.estoque_exceptions import EstoqueBadRequestException, EstoqueNotFoundException
-from app.models.historico_estoque_model import HistoricoEstoque, TipoMovimentacaoEnum
-from ..models.estoque_model import Estoque
-from app.repositories.historico_estoque_repository import HistoricoEstoqueRepository
-from .base import CrudService
-from ..repositories.estoque_repository import EstoqueRepository
 from app.integrations.kv_db.redis_asyncio_adapter import RedisAsyncioAdapter
+from app.models.historico_estoque_model import HistoricoEstoque, TipoMovimentacaoEnum
+from app.repositories.historico_estoque_repository import HistoricoEstoqueRepository
 
-from pclogging import LoggingBuilder
+from ..models.estoque_model import Estoque
+from ..repositories.estoque_repository import EstoqueRepository
+from .base import CrudService
 
 LoggingBuilder.init(log_level="DEBUG")
 

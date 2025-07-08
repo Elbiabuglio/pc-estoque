@@ -1,6 +1,9 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
+
 from app.common.context import factory
+
 
 @pytest.fixture
 def mock_context():

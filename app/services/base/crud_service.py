@@ -1,7 +1,7 @@
 from typing import Any, Generic, TypeVar
-from app.common.exceptions import NotFoundException
 
 from app.api.common.schemas import Paginator
+from app.common.exceptions import NotFoundException
 from app.models.base import PersistableEntity
 from app.repositories import AsyncCrudRepository
 

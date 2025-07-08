@@ -13,8 +13,6 @@ from app.common.exceptions import ApplicationException
 
 from .schemas.response import ErrorDetail, get_error_response
 
-from pclogging import LoggingBuilder
-
 LoggingBuilder.init()
 logger = LoggingBuilder.get_logger(__name__)
 

@@ -1,11 +1,11 @@
 from .base import (
+    AuditModel,
     IntModel,
     PersistableEntity,
     SellerSkuIntPersistableEntity,
     SellerSkuUuidPersistableEntity,
     UuidModel,
     UuidPersistableEntity,
-    AuditModel,
     UuidType,
 )
 from .estoque_model import Estoque

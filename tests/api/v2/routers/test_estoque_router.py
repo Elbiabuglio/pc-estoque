@@ -1,17 +1,19 @@
-from datetime import datetime, UTC
-import pytest
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock
+
+import pytest
 from httpx import ASGITransport, AsyncClient
+
 from app.api.common.auth_handler import do_auth
-from app.container import Container
-from app.services import EstoqueServices
-from app.models.estoque_model import Estoque
 from app.common.datetime import utcnow
+from app.container import Container
+from app.models.estoque_model import Estoque
+from app.services import EstoqueServices
 
 mock = AsyncMock(spec=EstoqueServices)
 Container.estoque_service.override(mock)
 
-from app.api_main import app 
+from app.api_main import app
 
 # ----------------------------
 # Fixtures

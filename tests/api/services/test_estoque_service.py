@@ -1,10 +1,11 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from app.services.estoque_service import EstoqueServices
-from app.models.estoque_model import Estoque
-from app.common.exceptions.estoque_exceptions import EstoqueBadRequestException
+
 import pytest
-from unittest.mock import AsyncMock
+
+from app.common.exceptions.estoque_exceptions import EstoqueBadRequestException
+from app.models.estoque_model import Estoque
+from app.services.estoque_service import EstoqueServices
+
 
 @pytest.fixture
 def mock_repository():

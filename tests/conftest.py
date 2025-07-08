@@ -1,11 +1,10 @@
-import pytest
+import os
+import tempfile
+from datetime import datetime
 from unittest.mock import MagicMock
 from uuid import uuid4
-from datetime import datetime
 
-import tempfile
-import os
-from uuid import uuid4
+import pytest
 
 # 🔸 Banco fake (simulação)
 fake_db = {}

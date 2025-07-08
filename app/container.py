@@ -1,16 +1,13 @@
 from dependency_injector import containers, providers
 
-from app.repositories import EstoqueRepository
-from app.services import HealthCheckService, EstoqueServices
-from app.settings import AppSettings
-from app.services.historico_estoque_service import HistoricoEstoqueService 
-from app.repositories.historico_estoque_repository import HistoricoEstoqueRepository 
-
-from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
-
 from app.integrations.auth.keycloak_adapter import KeycloakAdapter
-
+from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 from app.integrations.kv_db.redis_asyncio_adapter import RedisAsyncioAdapter
+from app.repositories import EstoqueRepository
+from app.repositories.historico_estoque_repository import HistoricoEstoqueRepository
+from app.services import EstoqueServices, HealthCheckService
+from app.services.historico_estoque_service import HistoricoEstoqueService
+from app.settings import AppSettings
 
 
 class Container(containers.DeclarativeContainer):

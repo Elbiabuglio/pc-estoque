@@ -1,6 +1,7 @@
-from pydantic import Field, PostgresDsn, HttpUrl, RedisDsn
-import dotenv
 import os
+
+import dotenv
+from pydantic import Field, HttpUrl, PostgresDsn, RedisDsn
 
 from .base import BaseSettings
 
