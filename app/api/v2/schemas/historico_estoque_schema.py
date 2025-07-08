@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import Field
+from pydantic import ConfigDict, Field
 from app.api.common.schemas import ResponseEntity, SchemaType
 from app.models.historico_estoque_model import TipoMovimentacaoEnum
 
@@ -13,5 +13,4 @@ class HistoricoEstoqueResponse(ResponseEntity, SchemaType):
     tipo_movimentacao: TipoMovimentacaoEnum = Field(..., description="Tipo da movimentação")
     movimentado_em: datetime = Field(..., description="Data e hora da movimentação")
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
