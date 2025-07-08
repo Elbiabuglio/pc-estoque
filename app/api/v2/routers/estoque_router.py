@@ -39,11 +39,10 @@ async def list_estoque_v2(
     opcional por quantidade.
 
     Args:
-        seller_id (str): O ID do vendedor, extraído do token JWT.
+        seller_id (str): O ID do vendedor, extraído do cabeçalho da requisição.
         quantity (Optional[int]): Filtro opcional para listar apenas itens
                                   com uma quantidade específica.
         paginator (Paginator): Dependência para controle de paginação (limit/offset).
-        estoque_service (EstoqueServices): Injeção de dependência do serviço de estoque.
 
     Returns:
         ListResponse[EstoqueResponseV2]: Uma resposta paginada contendo a lista
@@ -77,8 +76,7 @@ async def list_estoque_by_seller_and_sku_v2(
 
     Args:
         sku (str): O SKU (Stock Keeping Unit) do produto a ser buscado.
-        seller_id (str): O ID do vendedor, extraído do token JWT.
-        estoque_service (EstoqueServices): Injeção de dependência do serviço de estoque.
+        seller_id (str): O ID do vendedor, extraído do cabeçalho da requisição.
 
     Returns:
         EstoqueResponseV2: O objeto de estoque correspondente ao SKU e vendedor.
@@ -115,12 +113,11 @@ async def create_estoque_v2(
     Cria um novo item de estoque para o vendedor autenticado.
 
     Registra um novo produto no sistema de estoque. O `seller_id` é
-    automaticamente associado com base no token de autenticação.
+    automaticamente associado com base no cabeçalho da requisição.
 
     Args:
         estoque (EstoqueCreateV2): O corpo da requisição contendo o `sku` e a `quantidade`.
-        seller_id (str): O ID do vendedor, extraído do token JWT.
-        estoque_service (EstoqueServices): Injeção de dependência do serviço de estoque.
+        seller_id (str): O ID do vendedor, extraído do cabeçalho da requisição.
 
     Returns:
         EstoqueResponseV2: O objeto de estoque recém-criado.
@@ -159,8 +156,7 @@ async def update_estoque_by_seller_and_sku_v2(
     Args:
         sku (str): O SKU do item de estoque a ser atualizado.
         estoque_update (EstoqueUpdateV2): O corpo da requisição com a nova `quantidade`.
-        seller_id (str): O ID do vendedor, extraído do token JWT.
-        estoque_service (EstoqueServices): Injeção de dependência do serviço de estoque.
+        seller_id (str): O ID do vendedor, extraído do cabeçalho da requisição.
 
     Returns:
         EstoqueResponseV2: O objeto de estoque com a quantidade atualizada.
@@ -195,8 +191,7 @@ async def delete_estoque_by_seller_and_sku_v2(
 
     Args:
         sku (str): O SKU do item de estoque a ser deletado.
-        seller_id (str): O ID do vendedor, extraído do token JWT.
-        estoque_service (EstoqueServices): Injeção de dependência do serviço de estoque.
+        seller_id (str): O ID do vendedor, extraído do cabeçalho da requisição.
 
     Returns:
         None: Retorna uma resposta vazia com status 204 em caso de sucesso.

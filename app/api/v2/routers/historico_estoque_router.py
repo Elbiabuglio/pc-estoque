@@ -28,14 +28,11 @@ async def list_historico_estoque_semana_v2(
     Recupera o relatório de movimentações de estoque da última semana.
 
     Este endpoint retorna uma lista de todas as movimentações de estoque
-    (entradas, saídas, ajustes) registradas para o `seller_id` associado
-    ao token de autenticação nos últimos 7 dias.
+    (entradas, saídas, ajustes) registradas nos últimos 7 dias para o `seller_id` informado.
 
     Args:
         seller_id (str): O ID do vendedor, extraído automaticamente do
-                         token de autenticação JWT.
-        historico_estoque_service (HistoricoEstoqueService): Injeção de dependência
-                                                             do serviço de histórico.
+                         cabeçalho da requisição.
 
     Returns:
         ListResponse[HistoricoEstoqueResponse]: Um objeto de resposta contendo a
@@ -68,14 +65,12 @@ async def list_historico_estoque_dia_v2(
     Recupera o relatório de movimentações de estoque do dia corrente.
 
     Este endpoint retorna uma lista de todas as movimentações de estoque
-    (entradas, saídas, ajustes) registradas para o `seller_id` associado
-    ao token de autenticação desde a meia-noite (00:00) do dia atual.
+    (entradas, saídas, ajustes) registradas para o `seller_id` informado 
+    desde a meia-noite (00:00) do dia atual.
 
     Args:
         seller_id (str): O ID do vendedor, extraído automaticamente do
-                         token de autenticação JWT.
-        historico_estoque_service (HistoricoEstoqueService): Injeção de dependência
-                                                             do serviço de histórico.
+                         cabeçalho da requisição.
 
     Returns:
         ListResponse[HistoricoEstoqueResponse]: Um objeto de resposta contendo a
