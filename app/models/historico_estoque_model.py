@@ -3,7 +3,7 @@ import enum
 from sqlalchemy import Column, DateTime
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy import Integer, String
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
@@ -15,7 +15,7 @@ class TipoMovimentacaoEnum(str, enum.Enum):
 class HistoricoEstoque(Base):
     __tablename__ = "pc_estoque_historico"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)  # <-- Adicione esta linha
+    id = Column(Integer, primary_key=True, autoincrement=True) 
     seller_id = Column(String, nullable=False)
     sku = Column(String, nullable=False)
     quantidade_anterior = Column(Integer, nullable=False)

@@ -107,8 +107,6 @@ class EstoqueServices(CrudService[Estoque, str]):
 
         estoque_encontrado.quantidade = quantidade
         self._validate_positive_estoque(estoque_encontrado)
-
-        updated_data = estoque_encontrado.model_dump()
         
         temp_estoque = Estoque(**(dict(estoque_found) if isinstance(estoque_found, dict) else estoque_found.model_dump()))
         temp_estoque.quantidade = quantidade
