@@ -23,6 +23,14 @@ Este projeto foi construído utilizando as seguintes tecnologias principais:
 - **Docker & Docker Compose**: Para containerização da aplicação e seus serviços.
 - **Pytest**: Para a execução dos testes automatizados.
 - **Keycloak**: Para gerenciamento de identidade e acesso.
+- **SonarQube**: Para análise de qualidade do código.
+
+## **SUMARIO**
+
+- [🚀 Como Rodar o Projeto](#🚀-como-rodar-o-projeto)
+- [🧪 Testes e Qualidade de Código](#🧪-testes-e-qualidade-de-código)
+- [🤖 Como Rodar o Telegram-bot](#🤖-como-rodar-o-telegram-bot)
+- [📖 Documentação da API](#📖-documentação-da-api)
 
 ## 🚀 Como Rodar o Projeto
 
@@ -92,9 +100,6 @@ cd pc-estoque
 
   # No Windows
   docker-compose up -d
-  docker-compose exec app alembic upgrade head
-  docker-compose exec app python devtools/scripts/carregar_estoque_inicial.py
-
 ```
 
 **OBS: Comandos para descer os contêineres**
@@ -130,6 +135,41 @@ make run-dev
 # No Windows
 uvicorn app.api_main:app --reload
 ```
+
+## 🤖 Como Rodar o Telegram-bot
+
+- [Documentação do Telegram-bot](/devtools/bot/TELEGRAM_BOT_README.md)
+
+### **Pré-requisitos**
+
+- [Aplicação em execução](#🚀-Como-Rodar-o-Projeto)
+
+### **Configurando o Telegram-bot**
+
+1. **Criar um bot no Telegram:**
+
+   - Converse com [@BotFather](https://t.me/BotFather) no Telegram
+   - Use o comando `/newbot`
+   - Escolha um nome e username para seu bot
+   - Copie o token fornecido
+
+2. **Configurar variáveis de ambiente:**
+
+   Edite o arquivo `.env` e adicione seu token do bot:
+
+   ```bash
+   TELEGRAM_BOT_TOKEN=seu_token_aqui
+   ```
+
+3. **Executar o bot:**
+
+   ```bash
+   # No Linux
+   make telegram
+
+   # No Windows
+   python bot_main.py
+   ```
 
 ## 🧪 Testes e Qualidade de Código
 
@@ -177,7 +217,7 @@ cd pc-estoque
     make requirements-dev
 
     # No Windows
-    pip install -r requirements/develop.txt
+    pip install -r requirements.txt
     ```
 
 4.  **Copie o arquivo de ambiente:** Este arquivo contém as configurações necessárias para a aplicação, como a URL do banco de dados.
@@ -202,7 +242,7 @@ Para rodar a suíte de testes unitários e de integração, utilize o Pytest:
 make test
 
 # No Windows
-pytest
+ENV=test PYTHONPATH=. pytest
 ```
 
 Para gerar um relatório de cobertura de testes, execute:
@@ -212,10 +252,8 @@ Para gerar um relatório de cobertura de testes, execute:
 make coverage
 
 # No Windows
-pytest --cov=app --cov-report=html
+ENV=test PYTHONPATH=. pytest --cov=app --cov-report=term-missing --cov-report=xml tests --cov-fail-under=90 --durations=5
 ```
-
-O relatório será gerado na pasta `htmlcov/`. Você pode abrir o arquivo `index.html` em seu navegador para visualizar os detalhes.
 
 ### **Análise com SonarQube**
 
@@ -226,6 +264,12 @@ O projeto está configurado para análise com o SonarQube.
     ```bash
     docker-compose -f docker-compose-sonar.yml up -d
     ```
+
+2- **Gerando o Arquivo coverage.xml:**
+
+```bash
+coverage xml
+```
 
 2.  **Execute o Scanner:** Após rodar os testes e gerar o `coverage.xml`, execute o scanner do Sonar para enviar os resultados para o servidor. Você precisará de um token de autenticação.
     ```bash
@@ -240,8 +284,8 @@ O projeto está configurado para análise com o SonarQube.
 
 Após iniciar a aplicação (localmente ou com Docker), você pode acessar a documentação interativa da API nos seguintes endereços:
 
-- **Swagger UI:** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **ReDoc:** [http://localhost:8000/redoc](http://localhost:8000/redoc)
+- **Swagger UI:** [http://localhost:8000/api/docs](http://localhost:8000/api/docs)
+- **ReDoc:** [http://localhost:8000/api/redoc](http://localhost:8000/api/redoc)
 
 ## 📫 Contribuições
 

@@ -91,3 +91,7 @@ docker-up:
 # Descer e remover a aplicação com o Keycloak
 docker-down:
 	docker-compose down
+
+# Subir a o robo do telegram 
+telegram:
+	python bot_main.py
