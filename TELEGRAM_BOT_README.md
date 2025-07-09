@@ -12,8 +12,6 @@ Este bot permite gerenciar o estoque através do Telegram.
 
 2. **Configurar variáveis de ambiente:**
    ```bash
-   cp .env.example .env
-   ```
    Edite o arquivo `.env` e adicione seu token do bot:
    ```
    TELEGRAM_BOT_TOKEN=seu_token_aqui
@@ -40,9 +38,6 @@ Este bot permite gerenciar o estoque através do Telegram.
    ```bash
    # Versão simples (recomendada)
    python bot_simples.py
-   
-   # Ou versão principal
-   python telegram_bot_main.py
    ```
 
 ## Comandos Disponíveis
@@ -128,7 +123,6 @@ Este bot permite gerenciar o estoque através do Telegram.
 ## Estrutura do Projeto
 
 - `bot_simples.py` - **Arquivo principal recomendado** para executar o bot
-- `telegram_bot_main.py` - Arquivo alternativo para executar o bot
 - `start_services.bat` / `start_services.sh` - Scripts para iniciar PostgreSQL e Redis
 - `app/integrations/bots/telegram_bot.py` - Comandos e lógica do bot
 - `app/services/estoque_service.py` - Serviços de negócio

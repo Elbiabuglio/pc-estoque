@@ -139,8 +139,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 """
     await update.message.reply_text(help_text, parse_mode='Markdown')
 
-# Comando /adicionar
-
 
 @require_authentication
 async def adicionar(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -152,6 +150,11 @@ async def adicionar(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         sku, quantidade = args
         quantidade = int(quantidade)
+
+        # Validar quantidade
+        if quantidade <= 0:
+            await update.message.reply_text("❌ A quantidade deve ser maior que zero!")
+            return
 
         # Pegar o seller_id do usuário autenticado
         chat_id = update.effective_chat.id
@@ -178,9 +181,17 @@ async def adicionar(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"✅ Produto {sku} adicionado ao estoque do seller {seller_id} com quantidade {quantidade}.")
 
     except ValueError:
-        await update.message.reply_text("❌ Quantidade deve ser um número válido.")
+        await update.message.reply_text("❌ Quantidade deve ser um número inteiro.")
     except Exception as e:
-        await update.message.reply_text(f"❌ Erro ao adicionar produto: {str(e)}")
+        error_message = str(e)
+
+        # Tratar erros específicos de validação
+        if "quantidade deve ser maior que zero" in error_message:
+            await update.message.reply_text("❌ A quantidade deve ser maior que zero!")
+        elif "estoque_invalido" in error_message:
+            await update.message.reply_text("❌ Quantidade inválida. Deve ser um número positivo!")
+        else:
+            await update.message.reply_text(f"❌ Erro ao adicionar produto: {error_message}")
 
 # Comando /consultar
 
@@ -210,9 +221,21 @@ async def consultar(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"📅 Última atualização: {estoque.updated_at}"
         )
     except Exception as e:
-        await update.message.reply_text(f"❌ Produto não encontrado ou erro: {str(e)}")
+        error_message = str(e)
+        
+        # Tratar erro específico de produto não encontrado
+        if "404" in error_message and "estoque_nao_encontrado" in error_message:
+            # Extrair o SKU do contexto do erro se possível
+            import re
+            sku_match = re.search(r"'sku': '([^']+)'", error_message)
+            sku_name = sku_match.group(1) if sku_match else sku
+            await update.message.reply_text(f"❌ Produto '{sku_name}' não encontrado no seu estoque!")
+        elif "404" in error_message or "não encontrado" in error_message.lower():
+            await update.message.reply_text(f"❌ Produto '{sku}' não encontrado no seu estoque!")
+        else:
+            await update.message.reply_text(f"❌ Erro ao consultar produto: {error_message}")
 
-# Comando /atualizar
+# Comando atualizar
 
 
 @require_authentication
@@ -225,6 +248,11 @@ async def atualizar(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         sku, quantidade = args
         quantidade = int(quantidade)
+
+        # Validar quantidade
+        if quantidade <= 0:
+            await update.message.reply_text("❌ A quantidade deve ser maior que zero!")
+            return
 
         # Pegar o seller_id do usuário autenticado
         chat_id = update.effective_chat.id
@@ -242,9 +270,19 @@ async def atualizar(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"Nova quantidade: {quantidade}"
         )
     except ValueError:
-        await update.message.reply_text("❌ Quantidade deve ser um número válido.")
+        await update.message.reply_text("❌ Quantidade deve ser um número inteiro.")
     except Exception as e:
-        await update.message.reply_text(f"❌ Erro ao atualizar produto: {str(e)}")
+        error_message = str(e)
+
+        # Tratar erros específicos de validação
+        if "quantidade deve ser maior que zero" in error_message:
+            await update.message.reply_text("❌ A quantidade deve ser maior que zero!")
+        elif "estoque_invalido" in error_message:
+            await update.message.reply_text("❌ Quantidade inválida. Deve ser um número positivo!")
+        elif "404" in error_message or "não encontrado" in error_message.lower():
+            await update.message.reply_text(f"❌ Produto {sku} não encontrado no seu estoque!")
+        else:
+            await update.message.reply_text(f"❌ Erro ao atualizar produto: {error_message}")
 
 # Comando /remover
 
@@ -270,9 +308,21 @@ async def remover(update: Update, context: ContextTypes.DEFAULT_TYPE):
         estoque = await estoque_service.get_by_seller_id_and_sku(seller_id, sku)
         await estoque_service.delete(seller_id, sku)
 
-        await update.message.reply_text(f"✅ Produto {sku} removido do estoque do seller {seller_id}!")
+        await update.message.reply_text(f"✅ Produto {sku} removido do estoque!")
     except Exception as e:
-        await update.message.reply_text(f"❌ Erro ao remover produto: {str(e)}")
+        error_message = str(e)
+        
+        # Tratar erro específico de produto não encontrado
+        if "404" in error_message and "estoque_nao_encontrado" in error_message:
+            # Extrair o SKU do contexto do erro se possível
+            import re
+            sku_match = re.search(r"'sku': '([^']+)'", error_message)
+            sku_name = sku_match.group(1) if sku_match else sku
+            await update.message.reply_text(f"❌ Produto '{sku_name}' não encontrado no seu estoque!")
+        elif "404" in error_message or "não encontrado" in error_message.lower():
+            await update.message.reply_text(f"❌ Produto '{sku}' não encontrado no seu estoque!")
+        else:
+            await update.message.reply_text(f"❌ Erro ao remover produto: {error_message}")
 
 # Comando /estoque_baixo
 
@@ -370,3 +420,164 @@ async def config(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     except Exception as e:
         await update.message.reply_text(f"❌ Erro ao mostrar configurações: {str(e)}")
+
+# Função para tratar callbacks dos botões do menu
+
+
+async def handle_help_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Trata os callbacks dos botões do menu de ajuda"""
+    query = update.callback_query
+    await query.answer()
+
+    callback_data = query.data
+
+    help_responses = {
+        "help_identificar": """
+🆔 **Comando: /identificar**
+
+**Uso:** `/identificar <seu_seller_id>`
+
+**Exemplo:** `/identificar luizaLabs`
+
+**Descrição:** 
+Este comando permite que você se identifique no sistema. Após a identificação, todas as operações de estoque serão feitas apenas para o seu seller.
+
+**⚠️ Importante:** Você deve se identificar antes de usar qualquer outro comando!
+""",
+
+        "help_adicionar": """
+➕ **Comando: /adicionar**
+
+**Uso:** `/adicionar <sku> <quantidade>`
+
+**Exemplos:** 
+• `/adicionar ABC123 50` - Adiciona 50 unidades do produto ABC123
+• `/adicionar NOTEBOOK-DELL 10` - Adiciona 10 notebooks Dell
+
+**Comportamento:**
+• Se o produto já existe: **incrementa** a quantidade
+• Se é um produto novo: **cria** no estoque
+
+**⚠️ Importante:** A quantidade deve ser maior que zero!
+""",
+
+        "help_consultar": """
+🔍 **Comando: /consultar**
+
+**Uso:** `/consultar <sku>`
+
+**Exemplos:** 
+• `/consultar ABC123` - Consulta o produto ABC123
+• `/consultar NOTEBOOK-DELL` - Consulta notebooks Dell
+
+**Retorna:**
+• Quantidade atual
+• Seller responsável
+• Data da última atualização
+""",
+
+        "help_atualizar": """
+✏️ **Comando: /atualizar**
+
+**Uso:** `/atualizar <sku> <quantidade>`
+
+**Exemplos:** 
+• `/atualizar ABC123 25` - Define quantidade como 25
+• `/atualizar NOTEBOOK-DELL 5` - Define quantidade como 5
+
+**⚠️ Importante:** 
+• Define a quantidade **exata** (não incrementa)
+• A quantidade deve ser maior que zero!
+• O produto deve existir no seu estoque
+""",
+
+        "help_remover": """
+🗑️ **Comando: /remover**
+
+**Uso:** `/remover <sku>`
+
+**Exemplos:** 
+• `/remover ABC123` - Remove o produto ABC123
+• `/remover NOTEBOOK-DELL` - Remove notebooks Dell
+
+**⚠️ Atenção:** 
+• Remove **completamente** o produto do estoque
+• Esta ação não pode ser desfeita!
+• O produto deve existir no seu estoque
+""",
+
+        "help_estoque_baixo": f"""
+⚠️ **Comando: /estoque_baixo**
+
+**Uso:** `/estoque_baixo`
+
+**Descrição:** 
+Lista todos os seus produtos com estoque baixo (≤ {settings.low_stock_threshold} unidades).
+
+**Retorna:**
+• SKU do produto
+• Quantidade atual
+• Data da última atualização
+
+**💡 Dica:** Use este comando regularmente para controlar seu estoque!
+""",
+
+        "help_listar": """
+📋 **Comando: /listar**
+
+**Uso:** `/listar`
+
+**Descrição:** 
+Lista todos os seus produtos cadastrados no estoque (máximo 20 produtos).
+
+**Retorna:**
+• SKU de cada produto
+• Quantidade atual
+• Data da última atualização
+
+**💡 Dica:** Use para ter uma visão geral do seu estoque!
+""",
+
+        "help_config": """
+⚙️ **Comando: /config**
+
+**Uso:** `/config`
+
+**Descrição:** 
+Mostra as configurações atuais do sistema.
+
+**Retorna:**
+• Limite de estoque baixo
+• Versão do sistema
+• Nome da aplicação
+
+**💡 Útil para:** Saber qual o limite considerado "estoque baixo"
+""",
+
+        "help_exemplos": """
+💡 **Exemplos Práticos de Uso:**
+
+**🎯 Cenário 1: Novo Produto**
+1. `/adicionar MOUSE-GAMER 100` → Adiciona 100 mouses
+2. `/consultar MOUSE-GAMER` → Verifica se foi adicionado
+3. `/atualizar MOUSE-GAMER 80` → Ajusta para 80 unidades
+
+**🎯 Cenário 2: Controle Diário**
+1. `/listar` → Ver todos os produtos
+2. `/estoque_baixo` → Verificar produtos em falta
+3. `/adicionar TECLADO-RGB 50` → Repor estoque
+
+**🎯 Cenário 3: Produto Descontinuado**
+1. `/consultar PRODUTO-ANTIGO` → Ver quantidade atual
+2. `/remover PRODUTO-ANTIGO` → Remover do estoque
+
+**💡 Dica:** Sempre use `/estoque_baixo` para monitorar!
+"""
+    }
+
+    response = help_responses.get(callback_data, "❌ Opção não encontrada!")
+
+    await query.edit_message_text(
+        text=response,
+        parse_mode='Markdown'
+    )
