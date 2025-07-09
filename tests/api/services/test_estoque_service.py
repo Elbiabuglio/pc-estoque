@@ -6,6 +6,11 @@ from app.common.exceptions.estoque_exceptions import EstoqueBadRequestException
 from app.models.estoque_model import Estoque
 from app.services.estoque_service import EstoqueServices
 
+@pytest.fixture
+def mock_settings():
+    class Settings:
+        low_stock_threshold = 5
+    return Settings()
 
 @pytest.fixture
 def mock_repository():
@@ -22,8 +27,8 @@ def mock_historico_repository():
     return AsyncMock()
 
 @pytest.fixture
-def service(mock_repository, mock_redis, mock_historico_repository):
-    return EstoqueServices(mock_repository, mock_redis, mock_historico_repository)
+def service(mock_repository, mock_redis, mock_historico_repository, mock_settings):
+    return EstoqueServices(mock_repository, mock_redis, mock_historico_repository, mock_settings)
 
 @pytest.fixture
 def estoque_exemplo():
@@ -108,13 +113,13 @@ async def test_list_estoques_funciona(service, mock_repository):
     mock_repository.find.assert_awaited_once_with(filters, limit=10, offset=0)
     assert result == estoques_mock
 
-def test_validate_positive_estoque_valido():
-    service = EstoqueServices(None, None, None)
+def test_validate_positive_estoque_valido(mock_settings):
+    service = EstoqueServices(None, None, None, mock_settings)
     estoque = Estoque(id=1, seller_id="vendedor1", sku="sku1", quantidade=5)
     service._validate_positive_estoque(estoque)
 
-def test_validate_positive_estoque_invalido():
-    service = EstoqueServices(None, None, None)
+def test_validate_positive_estoque_invalido(mock_settings):
+    service = EstoqueServices(None, None, None, mock_settings)
     estoque = Estoque(id=1, seller_id="vendedor1", sku="sku1", quantidade=0)
     with pytest.raises(EstoqueBadRequestException) as exc:
         service._validate_positive_estoque(estoque)
@@ -123,11 +128,11 @@ def test_validate_positive_estoque_invalido():
     assert "quantidade deve ser maior que zero." in mensagem
 
 @pytest.mark.asyncio
-async def test_validate_non_existent_estoque_existente(mock_repository):
+async def test_validate_non_existent_estoque_existente(mock_repository,mock_settings):
     mock_repository.find_by_seller_id_and_sku.return_value = Estoque(
         id=1, seller_id="vendedor1", sku="sku1", quantidade=10
     )
-    service = EstoqueServices(mock_repository, None, None)
+    service = EstoqueServices(mock_repository, None, None,mock_settings)
     with pytest.raises(EstoqueBadRequestException) as exc:
         await service._validate_non_existent_estoque("vendedor1", "sku1")
     detalhes = getattr(exc.value, "details", [])
