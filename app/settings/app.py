@@ -18,6 +18,8 @@ class AppSettings(BaseSettings):
     memory_min: int = Field(default=64, title="Limite mínimo de memória disponível em MB")
     disk_usage_max: int = Field(default=80, title="Limite máximo de 80% de uso de disco")
 
+    low_stock_threshold: int = Field(default=15, title="Limite para notificação de estoque baixo")
+
     app_db_url: PostgresDsn = Field(..., title="URI para o banco Postgresql")
 
     app_openid_wellknown: HttpUrl = Field(..., title="URL well-known do Keycloak")

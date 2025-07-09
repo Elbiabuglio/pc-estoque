@@ -37,7 +37,8 @@ class Container(containers.DeclarativeContainer):
         EstoqueServices,
         repository=estoque_repository,
         redis_adapter=redis_adapter,
-        historico_repository=historico_estoque_repository
+        historico_repository=historico_estoque_repository,
+        settings=settings
     )
     historico_estoque_service = providers.Singleton(
         HistoricoEstoqueService,

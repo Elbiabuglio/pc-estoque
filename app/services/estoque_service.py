@@ -6,6 +6,7 @@ from app.common.exceptions.estoque_exceptions import EstoqueBadRequestException,
 from app.integrations.kv_db.redis_asyncio_adapter import RedisAsyncioAdapter
 from app.models.historico_estoque_model import HistoricoEstoque, TipoMovimentacaoEnum
 from app.repositories.historico_estoque_repository import HistoricoEstoqueRepository
+from app.settings import AppSettings
 
 from ..models.estoque_model import Estoque
 from ..repositories.estoque_repository import EstoqueRepository
@@ -19,12 +20,50 @@ class EstoqueServices(CrudService[Estoque, str]):
     repository: EstoqueRepository
     redis_adapter: RedisAsyncioAdapter
     historico_repository: HistoricoEstoqueRepository
+    settings: AppSettings
 
-    def __init__(self, repository: EstoqueRepository, redis_adapter: RedisAsyncioAdapter, historico_repository: HistoricoEstoqueRepository):
+    def __init__(self, repository: EstoqueRepository, redis_adapter: RedisAsyncioAdapter, historico_repository: HistoricoEstoqueRepository, settings: AppSettings):
         super().__init__(repository)
         self.redis_adapter = redis_adapter
         self.historico_repository = historico_repository
+        self.settings = settings
 
+    async def _check_low_stock_and_notify(self, estoque: Estoque):
+        """
+        Verifica se o estoque está abaixo do limite e loga um aviso.
+        """
+        if estoque.quantidade <= self.settings.low_stock_threshold:
+            logger.warning(
+                f"ALERTA DE ESTOQUE BAIXO: O produto SKU '{estoque.sku}' "
+                f"do vendedor '{estoque.seller_id}' atingiu o nível de {estoque.quantidade} unidades."
+            )
+
+    async def check_and_notify_all_low_stock(self):
+        """
+        Busca todos os itens com estoque baixo no banco de dados e dispara
+        notificações para cada um deles.
+        Ideal para ser usado por um worker/processo em background.
+        """
+        logger.info("WORKER: Iniciando verificação periódica de estoque baixo...")
+        
+        try:
+            low_stock_items = await self.repository.find_all_below_threshold(
+                self.settings.low_stock_threshold
+            )
+
+            if not low_stock_items:
+                logger.info("WORKER: Nenhum item com estoque baixo encontrado.")
+                return
+
+            logger.warning(f"WORKER: Encontrados {len(low_stock_items)} itens com estoque baixo. Enviando alertas...")
+            for item in low_stock_items:
+                # Reutiliza a mesma lógica de notificação individual
+                await self._check_low_stock_and_notify(item)
+        
+        except Exception as e:
+            logger.error(f"WORKER: Ocorreu um erro durante a verificação de estoque: {e}", exc_info=True)
+            
+        logger.info("WORKER: Verificação periódica de estoque baixo finalizada.")
 
     async def _registrar_historico(
         self,
@@ -89,6 +128,8 @@ class EstoqueServices(CrudService[Estoque, str]):
             quantidade_anterior=0
         )
 
+        await self._check_low_stock_and_notify(created)
+
         logger.debug(f"Estoque criado com sucesso: {created}")
         return created
 
@@ -123,6 +164,8 @@ class EstoqueServices(CrudService[Estoque, str]):
             tipo=TipoMovimentacaoEnum.ATUALIZACAO,
             quantidade_anterior=quantidade_anterior
         )
+
+        await self._check_low_stock_and_notify(updated)
 
         logger.debug(f"Estoque atualizado: {updated}")
 
@@ -220,3 +263,4 @@ class EstoqueServices(CrudService[Estoque, str]):
         """
         logger.error(f"BadRequestException: {message}, field={field}, value={value}")
         raise EstoqueBadRequestException(message=message, field=field, value=value)
+    
