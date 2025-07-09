@@ -18,6 +18,7 @@ Este projeto foi construído utilizando as seguintes tecnologias principais:
 - **FastAPI**: Framework web para a construção de APIs.
 - **SQLAlchemy**: ORM para interação com o banco de dados.
 - **PostgreSQL**: Banco de dados relacional.
+- **Redis**: Banco de dados não relacional utilizado como cache.
 - **Alembic**: Ferramenta para gerenciamento de migrações de banco de dados.
 - **Docker & Docker Compose**: Para containerização da aplicação e seus serviços.
 - **Pytest**: Para a execução dos testes automatizados.
@@ -90,7 +91,7 @@ cd pc-estoque
   make docker-up
 
   # No Windows
-  docker-compose -f docker-compose-keycloak.yml -f docker-compose-db.yml -f docker-compose-redis.yml up -d
+  docker-compose up -d
   docker-compose exec app alembic upgrade head
   docker-compose exec app python devtools/scripts/carregar_estoque_inicial.py
 
@@ -103,7 +104,7 @@ cd pc-estoque
   make docker-down
 
   # No Windows
-  docker-compose -f docker-compose-keycloak.yml -f docker-compose-db.yml -f docker-compose-redis.yml down
+  docker-compose down
 ```
 
 3.  **Ajuste o arquivo `.env`:** Abra o arquivo `.env` recém-criado e altere a variável `APP_DB_URL` para apontar para o seu banco de dados PostgreSQL local. O formato é: `postgresql+asyncpg://USER:PASSWORD@HOST:PORT/DATABASE_NAME`.
