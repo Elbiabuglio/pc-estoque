@@ -94,4 +94,7 @@ docker-down:
 
 # Subir a o robo do telegram 
 telegram:
-	python bot_main.py
+	python3.12 bot_main.py
+
+notification:
+	python3.12 -m app.worker.main

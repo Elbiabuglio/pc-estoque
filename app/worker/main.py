@@ -33,7 +33,7 @@ async def worker_loop():
     
     estoque_service = container.estoque_service()
     
-    check_interval_seconds = 120
+    check_interval_seconds = 60
 
     logger.info(f"O worker em background irá verificar o estoque a cada {check_interval_seconds} segundos.")
 

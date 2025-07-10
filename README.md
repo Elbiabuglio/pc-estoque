@@ -136,6 +136,16 @@ make run-dev
 uvicorn app.api_main:app --reload
 ```
 
+e o Worker para notificação de estoque baixo:
+
+```bash
+#No Linux
+make notification
+
+#No Windows
+python -m app.worker.main
+```
+
 ## 🤖 Como Rodar o Telegram-bot
 
 - [Documentação do Telegram-bot](/devtools/bot/TELEGRAM_BOT_README.md)
