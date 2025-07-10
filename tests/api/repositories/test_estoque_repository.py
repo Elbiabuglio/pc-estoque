@@ -1,11 +1,12 @@
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
+
 from app.models.estoque_model import Estoque
-from app.repositories.estoque_repository import EstoqueRepository, EstoqueBase
 from app.repositories.base.sqlalchemy_crud_repository import SQLAlchemyCrudRepository
 from app.repositories.base.sqlalchemy_entity_base import SellerIdSkuPersistableEntityBase
-
+from app.repositories.estoque_repository import EstoqueBase, EstoqueRepository
 
 # ---------------- Fixtures ---------------- #
 

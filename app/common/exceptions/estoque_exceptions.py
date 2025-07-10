@@ -21,6 +21,7 @@ class EstoqueNotFoundException(NotFoundException):
                 )
             ]
         super().__init__(details=details)
+        self.detail = details 
 
 
 class EstoqueBadRequestException(BadRequestException):
@@ -38,3 +39,4 @@ class EstoqueBadRequestException(BadRequestException):
                 )
             ]
         super().__init__(details=details)
+        self.detail = details 

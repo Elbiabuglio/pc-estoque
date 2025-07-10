@@ -3,13 +3,15 @@ Testes unitários para as exceções definidas em health_exceptions.
 """
 
 import pytest
+
 from app.services.health_check.health_exceptions import (
     HealthCheckException,
     InvalidConfigurationException,
-    ServiceWarning,
-    ServiceUnavailable,
     ServiceReturnedUnexpectedResult,
+    ServiceUnavailable,
+    ServiceWarning,
 )
+
 """
 Fixtures e instâncias auxiliares para testes das exceções de health_check.
 """

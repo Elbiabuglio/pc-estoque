@@ -1,5 +1,6 @@
 from app.container import Container
 
+
 def test_container_providers(
     mock_settings,
     mock_sql_client,

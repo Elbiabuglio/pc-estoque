@@ -1,9 +1,12 @@
 # tests/test_health_check_routers.py
 
+from unittest.mock import MagicMock
+
 import pytest
 from fastapi import FastAPI
-from unittest.mock import MagicMock
+
 from app.api.common.routers import health_check_routers
+
 
 @pytest.fixture
 def mock_settings():

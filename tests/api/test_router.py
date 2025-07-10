@@ -1,7 +1,9 @@
 # tests/test_router.py
-import pytest
 import importlib
+
+import pytest
 from fastapi import APIRouter
+
 
 @pytest.fixture
 def mock_router_estoque_v2():

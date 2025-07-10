@@ -6,6 +6,7 @@ from uuid_extensions import uuid7
 
 from app.common.datetime import utcnow
 
+
 class IdModel(BaseModel):
     id: UuidType | int | None = Field(None, description="Chave")
 

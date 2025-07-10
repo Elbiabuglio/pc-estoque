@@ -2,10 +2,12 @@
 Testes para as funções utilitárias de hash em hash_utils.
 """
 
-import pytest
-from app.common.hash_utils import generate_hash
-from unittest.mock import MagicMock
 import hashlib
+from unittest.mock import MagicMock
+
+import pytest
+
+from app.common.hash_utils import generate_hash
 
 """
 Fixtures e utilitários auxiliares para os testes de hash_utils.

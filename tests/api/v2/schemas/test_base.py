@@ -1,4 +1,5 @@
-from app.api.v2.schemas.base import UuidMixinSchema, TimestampMixinSchema
+from app.api.v2.schemas.base import TimestampMixinSchema, UuidMixinSchema
+
 
 def test_uuid_mixin_schema_with_id(fake_uuid):
     """

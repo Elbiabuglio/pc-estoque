@@ -1,6 +1,8 @@
-from app.api_main import app
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
+
+from app.api_main import app
+
 
 @pytest.fixture(scope="session")
 def api_client():

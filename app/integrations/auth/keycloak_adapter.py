@@ -1,6 +1,7 @@
 import httpx
 import jwt
 
+
 # ----- Exceções -----
 class OAuthException(Exception):
     """Exceção geral de autenticação"""

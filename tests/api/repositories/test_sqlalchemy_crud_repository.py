@@ -2,18 +2,22 @@
 Testes unitários para o SQLAlchemyCrudRepository.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, call
+
+import pytest
+
 """
 Fixtures e utilitários auxiliares para os testes do SQLAlchemyCrudRepository.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
-from app.repositories.base.sqlalchemy_crud_repository import SQLAlchemyCrudRepository
-from app.models.estoque_model import Estoque
-from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
+
+import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
+from app.models.estoque_model import Estoque
+from app.repositories.base.sqlalchemy_crud_repository import SQLAlchemyCrudRepository
 
 
 @pytest.fixture

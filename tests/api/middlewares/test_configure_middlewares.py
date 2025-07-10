@@ -1,14 +1,13 @@
 # tests/test_configure_middlewares.py
 
-import pytest
-from unittest.mock import patch
-
-from app.api.middlewares import configure_middlewares
+from unittest.mock import MagicMock, patch
 
 #configure_middlewares
 import pytest
-from unittest.mock import MagicMock
 from fastapi import FastAPI
+
+from app.api.middlewares import configure_middlewares
+
 
 @pytest.fixture
 def mock_settings():

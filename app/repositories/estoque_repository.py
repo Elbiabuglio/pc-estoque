@@ -1,14 +1,16 @@
 from typing import Any, Dict, Optional, TypeVar
 
+from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 from app.models.estoque_model import Estoque
+
 from .base.sqlalchemy_crud_repository import SQLAlchemyCrudRepository
 from .base.sqlalchemy_entity_base import SellerIdSkuPersistableEntityBase
-from app.integrations.database.sqlalchemy_client import SQLAlchemyClient
 
 T = TypeVar("T", bound=Estoque)
 B = TypeVar("B", bound=SellerIdSkuPersistableEntityBase)
 
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, select
+
 
 class EstoqueBase(SellerIdSkuPersistableEntityBase):
     __tablename__ = "pc_estoque"
@@ -37,6 +39,18 @@ class EstoqueRepository(SQLAlchemyCrudRepository[Estoque, EstoqueBase]):
         result = result.model_dump() if result else None
 
         return result
+    
+    async def find_all_below_threshold(self, threshold: int) -> list[Estoque]:
+        """
+        Encontra todos os registros de estoque que estão abaixo ou no limite especificado.
+        """
+        async with self.sql_client.make_session() as session:
+            stmt = select(self.entity_base_class).where(
+                self.entity_base_class.quantidade <= threshold
+            )
+            result = await session.execute(stmt)
+            entities = result.scalars().all()
+            return [Estoque.model_validate(entity) for entity in entities]
 
     async def update_by_seller_id_and_sku(self, seller_id: str, sku: str, estoque_update: Estoque) -> Dict[str, Any]:
         """

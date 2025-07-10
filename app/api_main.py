@@ -2,11 +2,10 @@ import os
 
 import dotenv
 from fastapi import FastAPI, Request
+from pclogging import LoggingBuilder
 
 from app.container import Container
 from app.settings import api_settings
-
-from pclogging import LoggingBuilder
 
 ENV = os.getenv("ENV", "production")
 is_dev = ENV == "dev"
@@ -37,8 +36,9 @@ def init() -> FastAPI:
 
     # Autowiring
     container.wire(modules=["app.api.common.routers.health_check_routers"])
-    container.wire(modules=["app.api.v1.routers.estoque_router"])
     container.wire(modules=["app.api.v2.routers.estoque_router"])
+    container.wire(modules=["app.api.v2.routers.historico_estoque_router"])
+
 
     # Outros middlewares podem ser adicionados aqui se necessário
 

@@ -13,6 +13,7 @@ from app.common.exceptions import ApplicationException
 
 from .schemas.response import ErrorDetail, get_error_response
 
+LoggingBuilder.init()
 logger = LoggingBuilder.get_logger(__name__)
 
 async def _get_request_body(request: Request) -> dict | None:

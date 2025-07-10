@@ -1,5 +1,7 @@
 import pytest
+
 from app.models.query import QueryModel
+
 
 class EstoqueQuery(QueryModel):
     seller_id: str | None = None

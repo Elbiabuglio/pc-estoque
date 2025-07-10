@@ -1,6 +1,9 @@
-import pytest
 from unittest.mock import patch
+
+import pytest
+
 from app.api.common import trace
+
 
 def test_get_trace_id_length():
     trace_id = trace.get_trace_id()

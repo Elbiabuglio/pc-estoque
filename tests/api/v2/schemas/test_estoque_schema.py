@@ -1,11 +1,9 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import pytest
 
-from app.api.v2.schemas.estoque_schema import (
-    EstoqueSchema,
-    EstoqueCreateV2,
-    EstoqueUpdateV2,
-)
+from app.api.v2.schemas.estoque_schema import EstoqueCreateV2, EstoqueSchema, EstoqueUpdateV2
+
 
 @pytest.fixture
 def estoque_data():

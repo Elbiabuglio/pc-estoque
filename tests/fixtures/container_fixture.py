@@ -7,17 +7,18 @@ Permite isolar dependências e utilizar implementações mockadas durante os tes
 """
 
 from typing import Generator, List
-from pytest import fixture
-from fastapi import FastAPI
 
+from dependency_injector import providers
+from fastapi import FastAPI
+from pytest import fixture
+
+from app.api.api_application import create_app
+from app.api.router import router_configurations as api_routes
 from app.container import Container
 from app.models import Estoque
 from app.repositories import EstoqueRepository
-from app.services import HealthCheckService, EstoqueService
+from app.services import EstoqueService, HealthCheckService
 from app.settings import api_settings
-from app.api.api_application import create_app
-from app.api.router import router_configurations as api_routes
-from dependency_injector import providers
 from tests.factories.estoque_repository_factory_mocks import EstoqueRepositoryMockFactory
 
 
