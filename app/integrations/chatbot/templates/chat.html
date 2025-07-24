@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Sistema de Controle de Estoque</title>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Overlay para mobile -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>PC-Estoque AI</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="status-card">
+                <div class="status-indicator online">
+                    <div class="pulse"></div>
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-info">
+                    <h3>Sistema Online</h3>
+                    <p>IA e Banco Integrados</p>
+                </div>
+            </div>
+
+            <!-- Analytics Simples -->
+            <div class="analytics-dashboard">
+                <h3><i class="fas fa-chart-bar"></i> Analytics Live</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon total">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="totalProducts">-</span>
+                            <span class="metric-label">Produtos</span>
+                        </div>
+                        <div class="metric-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+5.2%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="lowStock">-</span>
+                            <span class="metric-label">Estoque Baixo</span>
+                        </div>
+                        <div class="metric-trend negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>-12.1%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-icon success">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="metric-info">
+                            <span class="metric-value" id="efficiency">98.5%</span>
+                            <span class="metric-label">Eficiência</span>
+                        </div>
+                        <div class="metric-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+2.3%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comandos -->
+            <div class="commands-section">
+                <h3><i class="fas fa-lightning"></i> Ações Rápidas</h3>
+                <div class="command-grid">
+                    <button class="command-btn primary" onclick="console.log('🔥 BOTÃO CLICADO!'); window.promptSellerId();" title="Clique para se identificar">
+                        <div class="btn-content">
+                            <i class="fas fa-user-check"></i>
+                            <span>Identificar</span>
+                        </div>
+                    </button>
+                    <button class="command-btn" onclick="insertCommand('listar')">
+                        <i class="fas fa-list"></i>
+                        <span>Listar</span>
+                    </button>
+                    <button class="command-btn" onclick="insertCommand('adicionar ')">
+                        <i class="fas fa-plus"></i>
+                        <span>Adicionar</span>
+                    </button>
+                    <button class="command-btn" onclick="insertCommand('consultar ')">
+                        <i class="fas fa-search"></i>
+                        <span>Consultar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ajuda -->
+            <div class="help-section">
+                <h4><i class="fas fa-terminal"></i> Comandos</h4>
+                <div class="help-list">
+                    <div class="help-item">
+                        <span class="cmd">adicionar</span>
+                        <span class="desc">Inserir produto</span>
+                    </div>
+                    <div class="help-item">
+                        <span class="cmd">consultar</span>
+                        <span class="desc">Ver produto</span>
+                    </div>
+                    <div class="help-item">
+                        <span class="cmd">listar</span>
+                        <span class="desc">Mostrar todos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main chat area -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="chat-header">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="header-info">
+                    <h1><i class="fas fa-robot"></i> PC-Estoque Assistente</h1>
+                    <p class="subtitle">Inteligência Artificial para Controle de Estoque</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn" onclick="exportChat()" title="Exportar Chat">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="action-btn" onclick="clearChat()" title="Limpar Chat">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="action-btn" onclick="toggleTheme()" title="Alternar Tema">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Área de mensagens -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome message -->
+                <div class="message-container welcome-container">
+                    <div class="welcome-card">
+                        <div class="welcome-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="welcome-content">
+                            <h2>PC-Estoque Assistente</h2>
+                            <p>Sistema inteligente para controle de estoque</p>
+                            
+                            <!-- Alert de Identificação -->
+                            <div class="identification-alert" id="identificationAlert">
+                                <div class="alert-icon">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div class="alert-content">
+                                    <h4>👋 Bem-vindo!</h4>
+                                    <p>Identifique-se para começar a usar o sistema</p>
+                                    <button class="alert-action-btn" onclick="promptSellerId(); console.log('Botão alert clicado!');">
+                                        <i class="fas fa-sign-in-alt"></i>
+                                        <span>Identificar</span>
+                                    </button>
+                                </div>
+                                <button class="alert-close" onclick="hideIdentificationAlert()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="features-grid">
+                                <div class="feature-item">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>Adicionar produtos</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-search"></i>
+                                    <span>Consultar estoque</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Ver relatórios</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-brain"></i>
+                                    <span>Assistente IA</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="message-time" id="welcomeTime"></div>
+                </div>
+            </div>
+
+            <!-- Loading indicator -->
+            <div class="loading-container" id="loading">
+                <div class="loading-animation">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <span>IA processando...</span>
+            </div>
+
+            <!-- Input area -->
+            <div class="chat-input-container">
+                <!-- Autocomplete Suggestions -->
+                <div class="autocomplete-suggestions" id="autocompleteSuggestions" style="display: none;">
+                    <div class="suggestions-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Sugestões</span>
+                    </div>
+                    <div class="suggestions-list" id="suggestionsList">
+                        <!-- Suggestions will be inserted here -->
+                    </div>
+                </div>
+
+                <div class="input-area">
+                    <div class="input-field">
+                        <textarea 
+                            id="messageInput" 
+                            placeholder="Digite sua mensagem ou comando..." 
+                            rows="1"
+                            maxlength="500"
+                            autocomplete="off"
+                            spellcheck="false"
+                        ></textarea>
+                        <div class="char-counter">
+                            <span id="charCount">0</span>/500
+                        </div>
+                        <div class="input-status" id="inputStatus">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Pronto</span>
+                        </div>
+                    </div>
+                    <button class="send-button" id="sendButton" onclick="sendMessage()">
+                        <i class="fas fa-paper-plane"></i>
+                        <span class="send-text">Enviar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick commands popup -->
+    <div class="quick-commands" id="quickCommands">
+        <div class="commands-header">
+            <h3>Comandos Rápidos</h3>
+            <button onclick="toggleCommands()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="commands-list">
+            <button onclick="insertCommand('/start')"><i class="fas fa-play"></i> Iniciar</button>
+            <button onclick="insertCommand('/listar')"><i class="fas fa-list"></i> Listar Produtos</button>
+            <button onclick="insertCommand('/estoque_baixo')"><i class="fas fa-exclamation-triangle"></i> Estoque Baixo</button>
+            <button onclick="insertCommand('/config')"><i class="fas fa-cogs"></i> Configurações</button>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Sistema de Notificações -->
+    <div class="notification-center" id="notificationCenter">
+        <div class="notification-header">
+            <h4><i class="fas fa-bell"></i> Central de Notificações</h4>
+            <div class="notification-actions">
+                <button onclick="markAllAsRead()" title="Marcar como lida">
+                    <i class="fas fa-check-double"></i>
+                </button>
+                <button onclick="closeNotificationCenter()" title="Fechar">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="notification-list" id="notificationList">
+            <!-- Notificações serão inseridas aqui -->
+            <div class="notification-item unread priority-high">
+                <div class="notification-icon critical">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="notification-content">
+                    <h5>Estoque Crítico Detectado</h5>
+                    <p>3 produtos com estoque abaixo do limite mínimo</p>
+                    <small>há 2 minutos</small>
+                </div>
+                <div class="notification-actions">
+                    <button class="btn-quick-action" onclick="handleCriticalStock()">
+                        <i class="fas fa-eye"></i>
+                        Ver
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Seller ID -->
+    <div class="modal-overlay" id="sellerIdModal" style="display: none;">
+        <div class="modal-content seller-id-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Identificação Obrigatória</h3>
+                <button class="modal-close" onclick="closeSellerIdModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="identification-info">
+                    <div class="info-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>Acesso Seguro Necessário</h4>
+                        <p>Para acessar o sistema de estoque, identifique-se com seu Seller ID:</p>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="sellerIdInput">
+                        <i class="fas fa-user-tag"></i>
+                        Seller ID
+                    </label>
+                    <input 
+                        type="text" 
+                        id="sellerIdInput" 
+                        placeholder="" 
+                        maxlength="50"
+                        autocomplete="off"
+                        onkeypress="if(event.key==='Enter') confirmSellerId();"
+                    >
+                    <!-- Exemplo removido conforme solicitado -->
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeSellerIdModal()">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button class="btn-primary" onclick="confirmSellerId()" id="confirmSellerBtn">
+                        <i class="fas fa-check"></i>
+                        Confirmar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', path='script.js') }}"></script>
+</body>
+</html>
