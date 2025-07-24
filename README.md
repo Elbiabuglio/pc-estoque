@@ -25,6 +25,46 @@ Este projeto foi construído utilizando as seguintes tecnologias principais:
 - **Keycloak**: Para gerenciamento de identidade e acesso.
 - **SonarQube**: Para análise de qualidade do código.
 
+
+## 🤖 Chatbot Web
+
+O PC-Estoque conta com uma interface web de chatbot para facilitar a interação com o sistema de estoque de forma simples e intuitiva.
+
+
+### Como acessar
+
+Você pode rodar o Chatbot Web diretamente pelo terminal:
+
+```bash
+cd "app/integrations/chatbot"
+python run_web.py
+```
+
+
+Depois, acesse [http://localhost:8081](http://localhost:8081) no navegador e clique em "Acessar Chat" para abrir a interface do assistente.
+
+> **Importante:** Para acessar o sistema, é necessário se identificar usando o comando:
+>
+> ```
+> identificar admin
+> ```
+>
+> O ID `admin` é o seller_id padrão para testes e acesso completo.
+
+### Principais comandos disponíveis
+
+- `identificar [seller_id]` — Faz login no sistema 
+- `adicionar` — Adiciona um novo produto
+- `consultar` — Consulta um produto específico
+- `atualizar` — Atualiza a quantidade de um produto
+- `remover` — Remove um produto
+- `listar` — Lista todos os produtos
+- `estoque-baixo` — Mostra produtos com estoque crítico
+- `historico` — Exibe o histórico de movimentações
+- `logout` — Encerra a sessão
+
+---
+
 ## **SUMARIO**
 
 - [🚀 Como Rodar o Projeto](#🚀-como-rodar-o-projeto)
@@ -289,6 +329,82 @@ coverage xml
      -v "$(pwd)":/usr/src \
      sonarsource/sonar-scanner-cli
     ```
+
+
+## 📚 Documentação da API do Chatbot Web
+
+A API do Chatbot Web permite a integração e automação de interações com o assistente de estoque via requisições HTTP. Abaixo estão os principais endpoints disponíveis:
+
+### Base URL
+
+```
+http://localhost:8081
+```
+
+### Endpoints
+
+#### `POST /api/chat`
+
+Envia uma mensagem para o chatbot e recebe a resposta.
+
+**Request:**
+
+```
+POST /api/chat
+Content-Type: application/json
+```
+
+**Body:**
+
+```
+{
+  "message": "<mensagem>",
+  "session_id": "<id_da_sessao>"
+}
+```
+
+- `message` (string): Mensagem a ser enviada ao chatbot (ex: "listar").
+- `session_id` (string, opcional): Identificador da sessão do usuário. Se não informado, uma nova sessão será criada.
+
+**Response:**
+
+```
+{
+  "response": "<resposta_do_chatbot>",
+  "session_id": "<id_da_sessao>"
+}
+```
+
+- `response` (string): Resposta do chatbot.
+- `session_id` (string): Identificador da sessão (use este valor para manter o contexto em conversas futuras).
+
+**Exemplo de requisição usando curl:**
+
+```bash
+curl -X POST http://localhost:8081/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "listar"}'
+```
+
+#### `GET /api/health`
+
+Verifica se o serviço do Chatbot Web está online.
+
+**Request:**
+
+```
+GET /api/health
+```
+
+**Response:**
+
+```
+{
+  "status": "ok"
+}
+```
+
+---
 
 ## 📖 Documentação da API
 
