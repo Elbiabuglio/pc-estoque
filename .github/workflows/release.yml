@@ -1,0 +1,99 @@
+# .github/workflows/release.yml
+
+name: CI/CD para Release em Tags
+
+# ----------------------------------------------------
+# GATILHO (TRIGGER)
+# ----------------------------------------------------
+# Este workflow irá rodar SOMENTE quando uma nova tag
+# no formato 'v*.*.*' (ex: v1.0.0, v1.2.3) for criada.
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-test-and-publish:
+    name: Build, Testa e Publica a Imagem
+    runs-on: ubuntu-latest # O pipeline rodará em uma máquina virtual Linux (Ubuntu)
+
+    steps:
+      # ----------------------------------------------------
+      # ETAPA 1: PREPARAÇÃO DO AMBIENTE
+      # ----------------------------------------------------
+      - name: 1. Checkout do código
+        uses: actions/checkout@v4
+        # Baixa o código do seu repositório para a máquina virtual
+
+      - name: 2. Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          # Instala a versão especificada do Python
+
+      - name: 3. Instalar dependências e cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip # Onde o cache do pip é armazenado
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/base.txt', '**/requirements/develop.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+        # O cache acelera o build guardando as dependências já baixadas
+
+      - name: 4. Instalar requirements.txt
+        run: pip install -r requirements/develop.txt
+        # Instala as bibliotecas listadas no requirements.txt
+
+      # ----------------------------------------------------
+      # ETAPA 2: LINT E TESTES
+      # ----------------------------------------------------
+      - name: 5. Verificar lint e formatação
+        run: |
+          isort -c app ./tests
+          bandit -c pyproject.toml -r -f custom app ./tests
+          black --check app ./tests
+          flake8 --max-line-length=120 app ./tests
+        # Verifica a qualidade e formatação do código. O pipeline falhará se houver erros.
+
+      - name: 6. Executar testes com Pytest e verificar cobertura
+        run: pytest --cov=app --cov-report=term-missing --cov-report=xml ./tests/ --cov-fail-under=90 --durations=5
+        # Roda os testes e exige cobertura mínima de 90%. O pipeline falha se não atingir.
+
+      # ----------------------------------------------------
+      # ETAPA 3: BUILD E PUSH DA IMAGEM DOCKER
+      # ----------------------------------------------------
+      - name: 7. Login no GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }} # Nome do usuário ou organização do GitHub
+          password: ${{ secrets.GITHUB_TOKEN }}
+          # Usa um token temporário e seguro gerado automaticamente pelo GitHub Actions
+
+      - name: 8. Extrair metadados da imagem Docker (tags e labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          # Gera tags para a imagem Docker baseadas na tag do Git.
+          # Ex: se a tag do Git é v1.2.3, a imagem será ghcr.io/elbiabuglio/pc-estoque:1.2.3
+
+      - name: 9. Build e Push da imagem Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          # Constrói a imagem a partir do seu Dockerfile e a envia para o GHCR
+          # usando as tags geradas na etapa anterior.
+
+      # ----------------------------------------------------
+      # ETAPA 4: NOTIFICAÇÃO DE SUCESSO
+      # ----------------------------------------------------
+      - name: 10. Pipeline executado com sucesso! 🎉
+        run: |
+          echo "✅ Pipeline de release executado com sucesso!"
+          echo "🐳 Imagem Docker publicada em: ghcr.io/${{ github.repository }}"
+          echo "🏷️ Tag da versão: ${{ github.ref_name }}"
+        # Exibe uma mensagem de sucesso ao final do pipeline
