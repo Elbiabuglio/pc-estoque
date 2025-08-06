@@ -83,7 +83,7 @@ Depois, acesse [http://localhost:8081](http://localhost:8081) no navegador e cli
 ### **Clonando o Repositório**
 
 ```bash
-git clone https://github.com/projeto-carreira-luizalabs-2025/pc-estoque.git
+git clone https://github.com/Elbiabuglio/pc-estoque.git
 cd pc-estoque
 ```
 
@@ -234,7 +234,7 @@ O projeto está configurado com um conjunto de ferramentas para garantir a quali
 ### **Clonando o Repositório**
 
 ```bash
-git clone https://github.com/projeto-carreira-luizalabs-2025/pc-estoque.git
+git clone https://github.com/Elbiabuglio/pc-estoque.git
 cd pc-estoque
 ```
 
