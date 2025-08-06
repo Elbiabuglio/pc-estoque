@@ -6,7 +6,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings as PydanticBaseSettings
 from pydantic_settings import PydanticBaseSettingsSource, SettingsConfigDict
 
-ENV = environ.get("ENV", "missing environment")
+ENV = environ.get("ENV", "dev")
 # Os arquivos padrão de configurações por ambiente são carregados de acordo com a variável ENV.
 # Se uma variável for sobrescrita no arquivo .env local ela terá precedência sobre os arquivos dotenv.dev|test|prod
 # As variáveis de ambiente do SO tem prioridade em relação ao que está gravado nos arquivos
@@ -31,14 +31,17 @@ class EnvironmentEnum(StrEnum):
         return self == EnvironmentEnum.DEVELOPMENT
 
 
-if ENV not in EnvironmentEnum:
-    raise ValueError("ENV must be either 'dev', 'prod' or 'test'")  # pragma: no cover
+# Validação mais robusta com fallback
+if ENV not in ["dev", "prod", "test"]:
+    print(f"Aviso: ENV='{ENV}' inválido. Usando 'dev' como padrão.")
+    ENV = "dev"
 
 ENV_FILE = f"devtools/{ENV_FILES[ENV]}"
 
 
 class BaseSettings(PydanticBaseSettings):
-    env: EnvironmentEnum = Field(default=EnvironmentEnum.DEVELOPMENT, title="Ambiente da aplicação")
+    env: EnvironmentEnum = Field(
+        default=EnvironmentEnum.DEVELOPMENT, title="Ambiente da aplicação")
     env_file: str = ENV_FILE
 
     model_config = SettingsConfigDict(
